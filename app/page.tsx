@@ -88,6 +88,7 @@ export default function Home() {
   const [checkingSession, setCheckingSession] = useState(true);
 
   // Dashboard layout states
+  const [activeTab, setActiveTab] = useState<"referrals" | "patients">("referrals");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -241,7 +242,7 @@ export default function Home() {
     setShowSuccessScreen(false);
   };
 
-  // Submit new referral (Mobile only)
+  // Submit new referral
   const handleReferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError("");
@@ -297,10 +298,14 @@ export default function Home() {
     }
   };
 
-  // Open Dossier (PC only)
+  // Open Dossier
   const handleOpenDossier = async (referredId: string) => {
     setSelectedPatientId(referredId);
-    dossierResetStates();
+    setDossierLoading(true);
+    setDossierData(null);
+    setDossierTab("overview");
+    setNoteError("");
+    setNoteSuccess("");
 
     try {
       const response = await fetch(
@@ -327,15 +332,7 @@ export default function Home() {
     }
   };
 
-  const dossierResetStates = () => {
-    setDossierLoading(true);
-    setDossierData(null);
-    setDossierTab("overview");
-    setNoteError("");
-    setNoteSuccess("");
-  };
-
-  // Save clinical notes (PC only)
+  // Save clinical notes
   const handleSaveNotes = async () => {
     if (!dossierData?.profile?.id) {
       setNoteError("No profile ID found for this patient.");
@@ -464,6 +461,10 @@ export default function Home() {
     return referrals.filter((r) => r.referralStatus === "converted").length;
   }, [referrals]);
 
+  const activeReferralsList = useMemo(() => {
+    return referrals.filter((r) => r.referralStatus !== "converted");
+  }, [referrals]);
+
   const activePatientsList = useMemo(() => {
     return referrals
       .filter((r) => r.referralStatus === "converted")
@@ -479,263 +480,399 @@ export default function Home() {
       });
   }, [referrals, searchQuery]);
 
-  if (checkingSession) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#F8F4FF]">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-[#FF4D8D] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#666] font-semibold text-sm">Loading Doctor Session...</p>
+  // Render Mobile Login Page
+  const renderMobileLogin = () => (
+    <main className="min-h-screen bg-[#F8F4FF] relative flex items-center justify-center p-4 overflow-hidden selection:bg-[#FFE5EF] selection:text-[#FF4D8D] font-sans">
+      <div className="absolute top-[-10%] left-[-15%] w-[70%] h-[70%] rounded-full bg-[#FFE5EF]/60 blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-15%] w-[70%] h-[70%] rounded-full bg-[#EEE9FF]/60 blur-[80px] pointer-events-none" />
+
+      <div className="w-full bg-white/90 backdrop-blur-md rounded-[30px] border border-white shadow-xl p-6 relative z-10">
+        <div className="text-center mb-6">
+          <h1 className="text-[40px] font-black text-[#FF4D8D] leading-none tracking-tight">
+            WombCare
+          </h1>
+          <p className="text-[9px] text-[#7C5CFF] font-extrabold tracking-widest uppercase mt-1">
+            Clinical Referral Portal
+          </p>
+          <p className="text-[#666] text-xs mt-3">
+            Refer patients and view clinical reports
+          </p>
         </div>
+
+        {authError && (
+          <div className="mb-5 p-3.5 bg-[#FFE5EF] border border-[#FFE4E1] text-[#FF4D8D] text-xs font-semibold rounded-2xl">
+            <span>⚠️ {authError}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-[#555] text-xs font-bold mb-2">
+              Clinical Email ID
+            </label>
+            <input
+              type="email"
+              required
+              className="w-full px-4 py-3.5 bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#7C5CFF] focus:bg-white text-base"
+              placeholder="doctor@wombcare.in"
+              value={authEmail}
+              onChange={(e) => setAuthEmail(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[#555] text-xs font-bold mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              required
+              className="w-full px-4 py-3.5 bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#7C5CFF] focus:bg-white text-base"
+              placeholder="••••••••"
+              value={authPassword}
+              onChange={(e) => setAuthPassword(e.target.value)}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={authLoading}
+            className="w-full py-4 bg-[#111] text-white font-bold rounded-[24px] text-xs shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 min-h-[58px]"
+          >
+            {authLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              "Verify & Access Portal"
+            )}
+          </button>
+        </form>
       </div>
-    );
-  }
+    </main>
+  );
+
+  // Render Mobile Success Screen
+  const renderMobileSuccess = () => (
+    <main className="min-h-screen bg-[#F8F4FF] relative flex items-center justify-center p-4 overflow-hidden font-sans">
+      <div className="absolute top-[-10%] left-[-15%] w-[70%] h-[70%] rounded-full bg-[#FFE5EF]/60 blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-15%] w-[70%] h-[70%] rounded-full bg-[#EEE9FF]/60 blur-[80px] pointer-events-none" />
+
+      <div className="w-full bg-white rounded-[34px] shadow-xl p-6 border border-white text-center relative z-10 space-y-6">
+        <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-[#16A34A] text-4xl shadow-sm border border-emerald-100 animate-bounce">
+          ✓
+        </div>
+        
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black text-[#111]">Referral Registered!</h2>
+          <p className="text-xs text-[#666]">Successfully logged in WombCare administration</p>
+        </div>
+
+        <div className="bg-[#FAFAFA] border border-[#EEE] rounded-[24px] p-4 text-left space-y-2">
+          <span className="text-[10px] font-black text-[#999] uppercase tracking-wide block">Patient Summary</span>
+          <p className="text-base font-bold text-[#111]">{successName}</p>
+          <div className="flex justify-between text-xs text-slate-500 pt-1.5 border-t border-slate-100/50">
+            <span>Goal: <span className="font-bold text-[#FF4D8D]">{successProblem}</span></span>
+            <span>Mobile: <span className="font-semibold">{successMobile}</span></span>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setShowSuccessScreen(false)}
+          className="w-full h-[58px] bg-[#111] text-white font-bold rounded-[24px] text-xs shadow-md transition-all cursor-pointer flex items-center justify-center"
+        >
+          Refer Another Patient 🌸
+        </button>
+      </div>
+    </main>
+  );
 
   // ==========================================
   // 1. MOBILE DEVICE WORKFLOW (width < 768px)
   // ==========================================
   if (isMobileView) {
-    // A. MOBILE LOGIN PAGE
     if (!isLoggedIn) {
-      return (
-        <main className="min-h-screen bg-[#F8F4FF] relative flex items-center justify-center p-4 overflow-hidden selection:bg-[#FFE5EF] selection:text-[#FF4D8D] font-sans">
-          {/* Glowing blobs */}
-          <div className="absolute top-[-10%] left-[-15%] w-[70%] h-[70%] rounded-full bg-[#FFE5EF]/60 blur-[80px] pointer-events-none" />
-          <div className="absolute bottom-[-10%] right-[-15%] w-[70%] h-[70%] rounded-full bg-[#EEE9FF]/60 blur-[80px] pointer-events-none" />
-
-          <div className="w-full bg-white/90 backdrop-blur-md rounded-[30px] border border-white shadow-xl p-6 relative z-10">
-            <div className="text-center mb-6">
-              <h1 className="text-[40px] font-black text-[#FF4D8D] leading-none tracking-tight">
-                WombCare
-              </h1>
-              <p className="text-[9px] text-[#7C5CFF] font-extrabold tracking-widest uppercase mt-1">
-                Clinical Referral Portal
-              </p>
-              <p className="text-[#666] text-xs mt-3">
-                Quickly submit patients and track key metrics
-              </p>
-            </div>
-
-            {authError && (
-              <div className="mb-5 p-3.5 bg-[#FFE5EF] border border-[#FFE4E1] text-[#FF4D8D] text-xs font-semibold rounded-2xl">
-                <span>⚠️ {authError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-[#555] text-xs font-bold mb-2">
-                  Clinical Email ID
-                </label>
-                {/* text-base prevents iOS Safari zoom */}
-                <input
-                  type="email"
-                  required
-                  className="w-full px-4 py-3.5 bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#7C5CFF] focus:bg-white text-base"
-                  placeholder="doctor@wombcare.in"
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[#555] text-xs font-bold mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-4 py-3.5 bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#7C5CFF] focus:bg-white text-base"
-                  placeholder="••••••••"
-                  value={authPassword}
-                  onChange={(e) => setAuthPassword(e.target.value)}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full py-4 bg-[#111] text-white font-bold rounded-[24px] text-xs shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 min-h-[58px]"
-              >
-                {authLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Connecting...
-                  </>
-                ) : (
-                  "Verify & Access Portal"
-                )}
-              </button>
-            </form>
-          </div>
-        </main>
-      );
+      return renderMobileLogin();
     }
 
-    // B. MOBILE REFERRAL SUCCESS PAGE
     if (showSuccessScreen) {
-      return (
-        <main className="min-h-screen bg-[#F8F4FF] relative flex items-center justify-center p-4 overflow-hidden font-sans">
-          <div className="absolute top-[-10%] left-[-15%] w-[70%] h-[70%] rounded-full bg-[#FFE5EF]/60 blur-[80px] pointer-events-none" />
-          <div className="absolute bottom-[-10%] right-[-15%] w-[70%] h-[70%] rounded-full bg-[#EEE9FF]/60 blur-[80px] pointer-events-none" />
-
-          <div className="w-full bg-white rounded-[34px] shadow-xl p-6 border border-white text-center relative z-10 space-y-6">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-[#16A34A] text-4xl shadow-sm border border-emerald-100 animate-bounce">
-              ✓
-            </div>
-            
-            <div className="space-y-1">
-              <h2 className="text-2xl font-black text-[#111]">Referral Registered!</h2>
-              <p className="text-xs text-[#666]">Successfully logged in WombCare administration</p>
-            </div>
-
-            <div className="bg-[#FAFAFA] border border-[#EEE] rounded-[24px] p-4 text-left space-y-2">
-              <span className="text-[10px] font-black text-[#999] uppercase tracking-wide block">Patient Summary</span>
-              <p className="text-base font-bold text-[#111]">{successName}</p>
-              <div className="flex justify-between text-xs text-slate-500 pt-1.5 border-t border-slate-100/50">
-                <span>Goal: <span className="font-bold text-[#FF4D8D]">{successProblem}</span></span>
-                <span>Mobile: <span className="font-semibold">{successMobile}</span></span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowSuccessScreen(false)}
-              className="w-full h-[58px] bg-[#111] text-white font-bold rounded-[24px] text-xs shadow-md transition-all cursor-pointer flex items-center justify-center"
-            >
-              Refer Another Patient 🌸
-            </button>
-          </div>
-        </main>
-      );
+      return renderMobileSuccess();
     }
 
-    // C. MOBILE REFERRAL PAGE
     return (
       <main className="min-h-screen bg-[#F8F4FF] relative flex flex-col font-sans">
-        <nav className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-30 px-4 py-3.5">
+        {/* Navigation Bar */}
+        <nav className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-30 px-4 py-3.5 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-black text-[#FF4D8D] leading-none tracking-tight">WombCare</h1>
               <p className="text-[9px] text-[#7C5CFF] font-extrabold uppercase tracking-wider mt-0.5">Doctor Console</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 hover:bg-pink-50 hover:text-pink-600 text-slate-600 font-bold rounded-xl text-[10px] transition-all cursor-pointer min-h-[36px]"
-            >
-              <LogoutIcon />
-              <span>Logout</span>
-            </button>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => loadData()}
+                disabled={loading}
+                className="p-2 text-slate-500 hover:text-purple-600 rounded-xl"
+              >
+                <RefreshIcon className={`w-5 h-5 ${loading ? "animate-spin text-purple-600" : ""}`} />
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 text-slate-600 font-bold rounded-xl text-[10px] transition-all cursor-pointer"
+              >
+                <LogoutIcon />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </nav>
 
-        <div className="p-4 space-y-6 flex-1 flex flex-col justify-center">
-          {/* Welcome practitioner greeting */}
-          <div className="text-center px-2">
-            <h2 className="text-2xl font-black text-[#111] leading-tight">Welcome, Dr. {doctorInfo?.name || "Practitioner"}</h2>
-            <p className="text-xs text-[#666] mt-1">Submit referrals and check status bars</p>
+        {/* Tab Navigation Segment Pill Control (Expanded for mobile segment control layout) */}
+        <div className="px-4 pt-4 flex-shrink-0">
+          <div className="flex bg-[#F1EAFE] p-1.5 rounded-[22px] border border-transparent w-full">
+            <button
+              onClick={() => setActiveTab("referrals")}
+              className={`flex-1 text-center py-2.5 rounded-[18px] font-bold text-xs tracking-wide transition-all cursor-pointer min-h-[48px] flex items-center justify-center ${
+                activeTab === "referrals" ? "bg-[#111] text-white shadow-md" : "text-[#777]"
+              }`}
+            >
+              Referrals Feed
+            </button>
+            <button
+              onClick={() => setActiveTab("patients")}
+              className={`flex-1 text-center py-2.5 rounded-[18px] font-bold text-xs tracking-wide transition-all cursor-pointer min-h-[48px] flex items-center justify-center ${
+                activeTab === "patients" ? "bg-[#111] text-white shadow-md" : "text-[#777]"
+              }`}
+            >
+              My Active Patients
+            </button>
           </div>
+        </div>
 
-          {/* Stats Bars showing ONLY the numbers, nothing else */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-[#FFE5EF] rounded-[28px] p-5 shadow-sm text-center">
-              <span className="text-[#666] text-[10px] font-bold uppercase tracking-wider block">Active Patients</span>
-              <p className="text-3xl font-black text-[#111] mt-2">{totalPatients}</p>
-            </div>
-            
-            <div className="bg-[#EEE9FF] rounded-[28px] p-5 shadow-sm text-center">
-              <span className="text-[#666] text-[10px] font-bold uppercase tracking-wider block">Referrals Sent</span>
-              <p className="text-3xl font-black text-[#111] mt-2">{totalReferrals}</p>
-            </div>
-          </div>
-
-          {/* Quick Referral Form Card (Tactile layout) */}
-          <div className="bg-white rounded-[34px] p-5 shadow-sm border border-slate-100/50 space-y-5">
-            <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-xl p-4 text-white flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-base">Quick Referral</h3>
-                <p className="text-[10px] text-pink-50 mt-0.5">Register a referred patient instantly</p>
-              </div>
-              <SparklesIcon />
-            </div>
-
-            {submitError && (
-              <div className="p-3 bg-[#FFE5EF] border border-[#FFE4E1] text-[#FF4D8D] text-xs font-semibold rounded-xl">
-                <span>⚠️ {submitError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleReferSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[#555] text-xs font-bold mb-2">
-                  Patient Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-[18px] h-[58px] bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#FF4D8D] focus:bg-white text-base"
-                  placeholder="Enter patient full name"
-                  value={patientName}
-                  onChange={(e) => setPatientName(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[#555] text-xs font-bold mb-2">
-                  Mobile Number
-                </label>
-                <input
-                  type="tel"
-                  required
-                  className="w-full px-[18px] h-[58px] bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#FF4D8D] focus:bg-white text-base"
-                  placeholder="+91 98765 43210"
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[#555] text-xs font-bold mb-2">
-                  Clinical Goal / Category
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setProblem("PCOD/PMOS")}
-                    className={`py-3 px-3 rounded-[16px] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[48px] ${
-                      problem === "PCOD/PMOS"
-                        ? "bg-[#FF4D8D] border-transparent text-white shadow-sm"
-                        : "bg-[#FFF0F5] border-[1.5px] border-[#FFE4E1] text-[#FF4D8D]"
-                      }`}
-                  >
-                    PCOS/PCOD/PMOS
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setProblem("Conceive")}
-                    className={`py-3 px-3 rounded-[16px] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[48px] ${
-                      problem === "Conceive"
-                        ? "bg-[#FF4D8D] border-transparent text-white shadow-sm"
-                        : "bg-[#FFF0F5] border-[1.5px] border-[#FFE4E1] text-[#FF4D8D]"
-                      }`}
-                  >
-                    Conceive
-                  </button>
+        {/* Scrollable Viewport area */}
+        <div className="p-4 flex-1 overflow-y-auto space-y-6">
+          
+          {/* TAB 1: REFERRALS */}
+          {activeTab === "referrals" && (
+            <>
+              {/* Stats Bars showing ONLY the numbers */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-[#FFE5EF] rounded-[28px] p-5 shadow-sm text-center">
+                  <span className="text-[#666] text-[10px] font-bold uppercase tracking-wider block">Active Patients</span>
+                  <p className="text-3xl font-black text-[#111] mt-2">{totalPatients}</p>
+                </div>
+                
+                <div className="bg-[#EEE9FF] rounded-[28px] p-5 shadow-sm text-center">
+                  <span className="text-[#666] text-[10px] font-bold uppercase tracking-wider block">Referrals Sent</span>
+                  <p className="text-3xl font-black text-[#111] mt-2">{totalReferrals}</p>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full h-[58px] bg-[#111] hover:bg-[#222] text-white font-bold rounded-[24px] text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[58px]"
-              >
-                {submitting ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  "Submit Patient Referral"
+              {/* Quick Referral Form Card (Tactile layout) */}
+              <div className="bg-white rounded-[34px] p-5 shadow-sm border border-slate-100/50 space-y-5">
+                <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-xl p-4 text-white flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-base">Quick Referral</h3>
+                    <p className="text-[10px] text-pink-50 mt-0.5">Register a referred patient instantly</p>
+                  </div>
+                  <SparklesIcon />
+                </div>
+
+                {submitError && (
+                  <div className="p-3 bg-[#FFE5EF] border border-[#FFE4E1] text-[#FF4D8D] text-xs font-semibold rounded-xl">
+                    <span>⚠️ {submitError}</span>
+                  </div>
                 )}
-              </button>
-            </form>
-          </div>
+
+                <form onSubmit={handleReferSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[#555] text-xs font-bold mb-2">
+                      Patient Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-[18px] h-[58px] bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#FF4D8D] focus:bg-white text-base"
+                      placeholder="Enter patient full name"
+                      value={patientName}
+                      onChange={(e) => setPatientName(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#555] text-xs font-bold mb-2">
+                      Mobile Number
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      className="w-full px-[18px] h-[58px] bg-[#FAFAFA] border border-[#EEE] rounded-[18px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#FF4D8D] focus:bg-white text-base"
+                      placeholder="+91 98765 43210"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#555] text-xs font-bold mb-2">
+                      Clinical Goal / Category
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setProblem("PCOD/PMOS")}
+                        className={`py-3 px-3 rounded-[16px] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[48px] ${
+                          problem === "PCOD/PMOS"
+                            ? "bg-[#FF4D8D] border-transparent text-white shadow-sm"
+                            : "bg-[#FFF0F5] border-[1.5px] border-[#FFE4E1] text-[#FF4D8D]"
+                          }`}
+                      >
+                        PCOS/PCOD/PMOS
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setProblem("Conceive")}
+                        className={`py-3 px-3 rounded-[16px] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[48px] ${
+                          problem === "Conceive"
+                            ? "bg-[#FF4D8D] border-transparent text-white shadow-sm"
+                            : "bg-[#FFF0F5] border-[1.5px] border-[#FFE4E1] text-[#FF4D8D]"
+                          }`}
+                      >
+                        Conceive
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full h-[58px] bg-[#111] hover:bg-[#222] text-white font-bold rounded-[24px] text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[58px]"
+                  >
+                    {submitting ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      "Submit Patient Referral"
+                    )}
+                  </button>
+                </form>
+              </div>
+
+              {/* Recent Referrals List */}
+              <div className="space-y-4">
+                <h3 className="text-[20px] font-black text-[#111] px-1">Recent Referrals</h3>
+                {loading && referrals.length === 0 ? (
+                  <div className="bg-white rounded-[28px] p-6 text-center shadow-sm">
+                    <div className="w-6 h-6 border-2 border-[#FF4D8D] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  </div>
+                ) : activeReferralsList.length === 0 ? (
+                  <div className="bg-white rounded-[28px] p-8 text-center shadow-sm border border-slate-100/50">
+                    <p className="text-slate-500 font-bold text-xs">No active referrals found</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-3.5">
+                    {activeReferralsList.map((ref) => (
+                      <div
+                        key={ref.id}
+                        className="bg-white rounded-[28px] p-5 shadow-sm flex items-center justify-between gap-3 border border-slate-100/30"
+                      >
+                        <div className="space-y-1">
+                          <p className="font-bold text-[#111] text-base leading-tight">{ref.patientName}</p>
+                          <p className="text-[#555] text-xs font-normal">
+                            Condition: <span className="font-semibold text-[#FF4D8D]">{ref.problem}</span>
+                          </p>
+                          <p className="text-[#999] text-[10px]">
+                            {ref.mobile} • {new Date(ref.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          </p>
+                        </div>
+
+                        <span
+                          className={`text-[9px] font-extrabold uppercase px-2 py-1 rounded-full border tracking-wide flex-shrink-0 ${
+                            ref.referralStatus === "pending"
+                              ? "bg-[#FFE5EF] border-transparent text-[#111]"
+                              : ref.referralStatus === "contacted"
+                              ? "bg-[#EEE9FF] border-transparent text-[#111]"
+                              : ref.referralStatus === "converted"
+                              ? "bg-[#DCFCE7] border-transparent text-[#16A34A]"
+                              : "bg-[#FEE2E2] border-transparent text-[#EF4444]"
+                          }`}
+                        >
+                          {ref.referralStatus}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* TAB 2: PATIENTS */}
+          {activeTab === "patients" && (
+            <div className="space-y-4">
+              {/* Mobile Search input bar */}
+              <div className="bg-white rounded-[18px] border border-[#E2D9F3] flex items-center px-4 h-[52px] shadow-sm w-full gap-2">
+                <SearchIcon />
+                <input
+                  type="text"
+                  placeholder="Search by name, referral code..."
+                  className="bg-transparent border-none outline-none text-[#111] placeholder-[#A0A0A0] text-base ml-2 w-full focus:ring-0"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="text-[#999] hover:text-[#555] cursor-pointer p-1">
+                    <CloseIcon />
+                  </button>
+                )}
+              </div>
+
+              {/* Converted Patients List */}
+              {loading && activePatientsList.length === 0 ? (
+                <div className="bg-white rounded-[28px] p-8 text-center shadow-sm">
+                  <div className="w-6 h-6 border-2 border-[#7C5CFF] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                </div>
+              ) : activePatientsList.length === 0 ? (
+                <div className="bg-white rounded-[28px] p-8 text-center shadow-sm border border-slate-100 flex flex-col items-center justify-center">
+                  <p className="text-[#999] font-medium text-sm">No converted referral patients yet</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {activePatientsList.map((pat) => (
+                    <div
+                      key={pat.id}
+                      className="bg-white rounded-[30px] p-5 shadow-sm border border-slate-100 flex flex-col justify-between gap-4"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <p className="font-bold text-[#111] text-lg">{pat.patientName}</p>
+                          <span className="text-[9px] font-bold bg-[#DCFCE7] text-[#16A34A] px-2 py-0.5 rounded">Active</span>
+                        </div>
+                        
+                        <div className="space-y-1 text-xs">
+                          <p className="text-[#7C5CFF] font-medium">Referral Code: <span className="font-bold font-mono text-slate-700">{pat.doctorReferralCode}</span></p>
+                          {pat.email && <p className="text-[#999]">{pat.email}</p>}
+                          <p className="text-[#999]">Mobile: {pat.mobile}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleOpenDossier(pat.id)}
+                        className="w-full py-2.5 bg-[#DCFCE7] hover:bg-emerald-100 text-[#16A34A] font-bold rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1 min-h-[40px]"
+                      >
+                        <span>View Health Dossier</span>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
     );
@@ -822,7 +959,7 @@ export default function Home() {
   // B. DESKTOP DASHBOARD (Patients Report console, no referral form)
   return (
     <main className="min-h-screen bg-[#F8F4FF] selection:bg-[#FFE5EF] selection:text-[#FF4D8D] relative flex flex-col font-sans">
-      <nav className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-30 px-6 py-4">
+      <nav className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-30 px-6 py-4 flex-shrink-0">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div>
@@ -856,7 +993,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="max-w-6xl w-full mx-auto px-6 py-8 space-y-8 flex-1 flex flex-col">
+      <div className="max-w-6xl w-full mx-auto px-6 py-8 space-y-8 flex-1 flex flex-col overflow-y-auto">
         {/* Welcome Section */}
         <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/50 pb-5">
           <div>
@@ -944,11 +1081,10 @@ export default function Home() {
         </section>
       </div>
 
-      {/* --- PATIENT HEALTH DOSSIER SIDE-PANEL / MODAL --- */}
+      {/* --- PATIENT HEALTH DOSSIER SIDE-PANEL / DRAWERS (USED IN BOTH PC AND RESPONSIVE MOBILE OVERLAYS) --- */}
       {selectedPatientId && (
         <div className="fixed inset-0 z-50 bg-[#111]/50 backdrop-blur-sm flex justify-end transition-opacity duration-300">
-          
-          {/* Dossier Sidebar container utilizing App background #F8F4FF */}
+          {/* Side panel scales to cover 100% of viewport on mobile (max-w-3xl on tablets/desktop) */}
           <div className="bg-[#F8F4FF] w-full md:max-w-3xl h-full flex flex-col shadow-2xl relative animate-slide-in">
             
             {/* Header section (matching modalHeader) */}
@@ -982,7 +1118,7 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Dossier loading spinner */}
+            {/* Dossier tabs segment bar (matching dossierTabContainer) */}
             {dossierLoading ? (
               <div className="flex-1 flex flex-col items-center justify-center">
                 <div className="w-8 h-8 border-2 border-[#7C5CFF] border-t-transparent rounded-full animate-spin mb-3" />
@@ -990,15 +1126,12 @@ export default function Home() {
               </div>
             ) : (
               <>
-                {/* Dossier tabs segment bar (matching dossierTabContainer) */}
                 <div className="p-[20px] pb-1 flex-shrink-0">
                   <div className="flex bg-[#F0E9FF] p-[4px] rounded-[16px] border border-transparent w-full">
                     <button
                       onClick={() => setDossierTab("overview")}
                       className={`py-2 px-3 text-[13px] font-bold transition-all rounded-[12px] cursor-pointer flex items-center gap-1.5 flex-1 justify-center min-h-[38px] ${
-                        dossierTab === "overview"
-                          ? "bg-[#7C5CFF] text-white shadow-sm"
-                          : "text-[#7C5CFF]"
+                        dossierTab === "overview" ? "bg-[#7C5CFF] text-white shadow-sm" : "text-[#7C5CFF]"
                       }`}
                     >
                       Clinical Profile
@@ -1006,9 +1139,7 @@ export default function Home() {
                     <button
                       onClick={() => setDossierTab("timeline")}
                       className={`py-2 px-3 text-[13px] font-bold transition-all rounded-[12px] cursor-pointer flex items-center gap-1.5 flex-1 justify-center min-h-[38px] ${
-                        dossierTab === "timeline"
-                          ? "bg-[#7C5CFF] text-white shadow-sm"
-                          : "text-[#7C5CFF]"
+                        dossierTab === "timeline" ? "bg-[#7C5CFF] text-white shadow-sm" : "text-[#7C5CFF]"
                       }`}
                     >
                       Date-wise History
@@ -1213,7 +1344,7 @@ export default function Home() {
 
                         <textarea
                           rows={4}
-                          className="w-full p-4 bg-[#FAFAFA] border border-[#EFEAFA] rounded-[18px] text-[14px] text-[#111] focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all resize-none"
+                          className="w-full p-4 bg-[#FAFAFA] border border-[#EFEAFA] rounded-[18px] text-base sm:text-[14px] text-[#111] focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all resize-none"
                           placeholder="Recommend diet plans, supplement schedules, exercise logs, or guidance..."
                           value={editingNoteText}
                           onChange={(e) => setEditingNoteText(e.target.value)}
@@ -1233,7 +1364,7 @@ export default function Home() {
                       </div>
                     </>
                   ) : (
-                    // DATE-WISE HISTORY TIMELINE
+                    // TIMELINE
                     <div className="space-y-6">
                       {Object.keys(timelineDataGrouped).length === 0 ? (
                         <div className="bg-white rounded-[28px] p-8 text-center border border-slate-100">
