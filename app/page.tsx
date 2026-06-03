@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 
-// Interface definitions to match Backend model structure
+// Interface definitions matching Backend model structure
 interface Referral {
   id: string;
   patientName: string;
@@ -25,21 +25,21 @@ interface TimelineEvent {
   details: string;
 }
 
-// Inline SVGs as React components for visual excellence without extra packages
+// Inline SVGs for consistent UI icons across mobile and desktop
 const SparklesIcon = () => (
-  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
   </svg>
 );
 
 const UserGroupIcon = () => (
-  <svg className="w-6 h-6 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
   </svg>
 );
 
 const DocumentTextIcon = () => (
-  <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
   </svg>
 );
@@ -50,14 +50,14 @@ const SearchIcon = () => (
   </svg>
 );
 
-const RefreshIcon = ({ className = "w-6 h-6" }) => (
+const RefreshIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17" />
   </svg>
 );
 
 const LogoutIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
   </svg>
 );
@@ -69,7 +69,7 @@ const ArrowLeftIcon = () => (
 );
 
 const CloseIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
@@ -111,7 +111,7 @@ export default function Home() {
   const [noteSuccess, setNoteSuccess] = useState("");
   const [noteError, setNoteError] = useState("");
 
-  // Check existing session on load
+  // Check session storage on mount
   useEffect(() => {
     const storedToken = localStorage.getItem("doctorToken");
     const storedDoctor = localStorage.getItem("doctorInfo");
@@ -458,52 +458,54 @@ export default function Home() {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Checking doctor session...</p>
+          <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-600 font-semibold text-sm">Loading Doctor Session...</p>
         </div>
       </div>
     );
   }
 
-  // --- LOGIN INTERFACE ---
+  // --- MOBILE OPTIMIZED LOGIN INTERFACE ---
   if (!isLoggedIn) {
     return (
-      <main className="min-h-screen bg-slate-50 relative flex items-center justify-center p-6 overflow-hidden selection:bg-pink-100 selection:text-pink-900">
+      <main className="min-h-screen bg-slate-50 relative flex items-center justify-center p-4 sm:p-6 overflow-hidden selection:bg-pink-100 selection:text-pink-900">
         {/* Soft floating blurred background elements */}
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-pink-200/40 blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-200/40 blur-[100px] pointer-events-none" />
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-pink-200/30 blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-200/30 blur-[80px] pointer-events-none" />
 
-        <div className="w-full max-w-md bg-white/80 backdrop-blur-md rounded-3xl border border-slate-100/50 shadow-2xl p-8 relative z-10 transition-all duration-300">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+        {/* Card wraps with lower padding on mobile to optimize screen viewport */}
+        <div className="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-slate-100/50 shadow-xl p-6 sm:p-8 relative z-10 transition-all duration-300">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight">
               Womb<span className="text-pink-500">Care</span>
             </h1>
-            <p className="text-sm text-purple-600 font-semibold tracking-wide uppercase mt-1">
+            <p className="text-[10px] text-purple-600 font-extrabold tracking-widest uppercase mt-1">
               Doctor Clinical Portal
             </p>
-            <p className="text-slate-500 text-sm mt-2">
+            <p className="text-slate-500 text-xs sm:text-sm mt-2">
               Sign in to manage patient referrals and clinical health metrics
             </p>
           </div>
 
           {authError && (
-            <div className="mb-6 p-4 bg-pink-50 border border-pink-100 text-pink-700 text-sm rounded-2xl flex items-center gap-2">
-              <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="mb-5 p-3.5 bg-pink-50 border border-pink-100 text-pink-700 text-xs rounded-xl flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
               <span>{authError}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
             <div>
-              <label className="block text-slate-700 text-sm font-semibold mb-1">
+              <label className="block text-slate-700 text-xs font-bold mb-1.5">
                 Clinical Email ID
               </label>
+              {/* text-base on mobile prevents iOS safari auto-zooming on select, text-sm on sm screens */}
               <input
                 type="email"
                 required
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:bg-white transition-all text-sm"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:bg-white transition-all text-base sm:text-sm"
                 placeholder="doctor@wombcare.in"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
@@ -511,13 +513,13 @@ export default function Home() {
             </div>
 
             <div>
-              <label className="block text-slate-700 text-sm font-semibold mb-1">
+              <label className="block text-slate-700 text-xs font-bold mb-1.5">
                 Security Password
               </label>
               <input
                 type="password"
                 required
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:bg-white transition-all text-sm"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:bg-white transition-all text-base sm:text-sm"
                 placeholder="••••••••"
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
@@ -527,11 +529,11 @@ export default function Home() {
             <button
               type="submit"
               disabled={authLoading}
-              className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-bold rounded-xl shadow-md transition-all duration-200 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 min-h-[48px]"
             >
               {authLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Authenticating...
                 </>
               ) : (
@@ -544,32 +546,32 @@ export default function Home() {
     );
   }
 
-  // --- MAIN PORTAL INTERFACE ---
+  // --- MOBILE OPTIMIZED PORTAL DASHBOARD ---
   return (
-    <main className="min-h-screen bg-slate-50 selection:bg-pink-100 selection:text-pink-900 relative">
-      {/* Floating blurred accent blobs */}
-      <div className="absolute top-[-100px] right-[-100px] w-96 h-96 rounded-full bg-pink-200/30 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-[-100px] left-[-100px] w-96 h-96 rounded-full bg-purple-200/30 blur-3xl pointer-events-none" />
+    <main className="min-h-screen bg-slate-50 selection:bg-pink-100 selection:text-pink-900 relative flex flex-col">
+      {/* Floating blurred background accent blobs */}
+      <div className="absolute top-[-100px] right-[-100px] w-72 h-72 rounded-full bg-pink-200/20 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-100px] left-[-100px] w-72 h-72 rounded-full bg-purple-200/20 blur-3xl pointer-events-none" />
 
-      {/* Navigation Top bar */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-30 px-6 py-4">
+      {/* Navigation Top bar (Sticky) */}
+      <nav className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-30 px-4 sm:px-6 py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-purple-600 to-pink-500 w-10 h-10 rounded-2xl flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-xl">W</span>
+          <div className="flex items-center gap-2.5">
+            <div className="bg-gradient-to-tr from-purple-600 to-pink-500 w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-white font-black text-lg">W</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800">
+              <h1 className="text-lg font-black text-slate-800 leading-tight">
                 Womb<span className="text-pink-500">Care</span>
               </h1>
-              <p className="text-[10px] text-purple-600 font-bold uppercase tracking-wider">
+              <p className="text-[9px] text-purple-600 font-extrabold uppercase tracking-wider">
                 Doctor Console
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="hidden sm:inline-block text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-2.5">
+            <span className="hidden md:inline-block text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
               🩺 Dr. {doctorInfo?.name || "Practitioner"}
             </span>
 
@@ -577,78 +579,78 @@ export default function Home() {
               onClick={() => loadData()}
               disabled={loading}
               title="Refresh Dashboard Data"
-              className="p-2 text-slate-500 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer"
+              className="p-2 text-slate-500 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
             >
               <RefreshIcon className={`w-5 h-5 ${loading ? "animate-spin text-purple-600" : ""}`} />
             </button>
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 hover:bg-pink-50 hover:text-pink-600 text-slate-600 font-semibold rounded-xl text-xs transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-50 hover:bg-pink-50 hover:text-pink-600 text-slate-600 font-bold rounded-xl text-[11px] transition-all cursor-pointer min-h-[36px]"
             >
               <LogoutIcon />
-              <span>Sign Out</span>
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Main Container */}
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8 relative z-10">
+      {/* Main Content Area */}
+      <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-8 space-y-6 sm:space-y-8 relative z-10 flex-1">
         
         {/* Welcome & Overview Stats */}
-        <section className="grid sm:grid-cols-3 gap-6">
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
-            <h2 className="text-slate-500 text-sm font-semibold">Account Clinic</h2>
-            <div className="mt-4">
-              <p className="text-lg font-bold text-slate-800">{doctorInfo?.hospital || "WombCare Health"}</p>
-              <p className="text-xs text-slate-500 mt-1">Specialization: {doctorInfo?.specialty || "Hormonal Health"}</p>
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+            <h2 className="text-slate-400 text-xs font-bold uppercase tracking-wider">Clinic & Practitioner</h2>
+            <div className="mt-3">
+              <p className="text-base font-bold text-slate-800">{doctorInfo?.hospital || "WombCare Clinic"}</p>
+              <p className="text-xs text-slate-500 mt-0.5">Specialization: {doctorInfo?.specialty || "Hormonal Health"}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-500">
+            <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between text-xs text-slate-500">
               <span>Referral Code:</span>
-              <span className="font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">{doctorInfo?.referralCode || "N/A"}</span>
+              <span className="font-mono font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">{doctorInfo?.referralCode || "N/A"}</span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center flex-shrink-0">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center flex-shrink-0">
               <UserGroupIcon />
             </div>
             <div>
-              <p className="text-3xl font-black text-slate-800">{totalPatients}</p>
-              <p className="text-sm font-semibold text-slate-500 mt-0.5">Active Converted Patients</p>
+              <p className="text-2xl font-black text-slate-800">{totalPatients}</p>
+              <p className="text-xs font-bold text-slate-400 mt-0.5">Converted Patients</p>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
               <DocumentTextIcon />
             </div>
             <div>
-              <p className="text-3xl font-black text-slate-800">{totalReferrals}</p>
-              <p className="text-sm font-semibold text-slate-500 mt-0.5">Total Referrals Sent</p>
+              <p className="text-2xl font-black text-slate-800">{totalReferrals}</p>
+              <p className="text-xs font-bold text-slate-400 mt-0.5">Referrals Submitted</p>
             </div>
           </div>
         </section>
 
-        {/* Tab Selection */}
-        <section className="flex border-b border-slate-200">
+        {/* Segment Tabs Control - Takes full width on mobile for segment control experience */}
+        <section className="flex bg-slate-200/50 p-1 rounded-xl border border-slate-200/30">
           <button
             onClick={() => setActiveTab("referrals")}
-            className={`pb-4 px-6 font-bold text-sm tracking-wide transition-all border-b-2 cursor-pointer ${
+            className={`flex-1 text-center py-2.5 rounded-lg font-bold text-xs tracking-wide transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
               activeTab === "referrals"
-                ? "border-pink-500 text-pink-600"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "bg-white text-pink-600 shadow-sm"
+                : "text-slate-500 hover:text-slate-800"
             }`}
           >
             Clinical Referrals
           </button>
           <button
             onClick={() => setActiveTab("patients")}
-            className={`pb-4 px-6 font-bold text-sm tracking-wide transition-all border-b-2 cursor-pointer ${
+            className={`flex-1 text-center py-2.5 rounded-lg font-bold text-xs tracking-wide transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
               activeTab === "patients"
-                ? "border-purple-500 text-purple-600"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "bg-white text-purple-600 shadow-sm"
+                : "text-slate-500 hover:text-slate-800"
             }`}
           >
             My Active Patients
@@ -657,28 +659,28 @@ export default function Home() {
 
         {/* --- REFERRALS TAB CONTENT --- */}
         {activeTab === "referrals" && (
-          <section className="grid md:grid-cols-12 gap-8 items-start">
+          <section className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start">
             
-            {/* Quick Referral Form (40% width on Desktop) */}
-            <div className="md:col-span-5 bg-white border border-slate-100 rounded-3xl shadow-sm p-6 space-y-6">
+            {/* Quick Referral Form (Tactile design) */}
+            <div className="md:col-span-5 bg-white border border-slate-100 rounded-2xl shadow-sm p-5 sm:p-6 space-y-5">
               
               {/* Form Hero header */}
-              <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-2xl p-5 text-white flex items-center justify-between">
+              <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-xl p-4 text-white flex items-center justify-between shadow-sm">
                 <div>
-                  <h3 className="font-bold text-lg">Quick Referral</h3>
-                  <p className="text-xs text-pink-50 mt-1">Register a patient to WombCare instantly</p>
+                  <h3 className="font-bold text-base">Quick Referral</h3>
+                  <p className="text-[10px] text-pink-50 mt-0.5">Register a referred patient instantly</p>
                 </div>
                 <SparklesIcon />
               </div>
 
               {submitError && (
-                <div className="p-3.5 bg-pink-50 border border-pink-100 text-pink-700 text-xs rounded-xl flex items-center gap-2">
+                <div className="p-3 bg-pink-50 border border-pink-100 text-pink-700 text-xs rounded-xl">
                   <span>⚠️ {submitError}</span>
                 </div>
               )}
 
               {submitSuccess && (
-                <div className="p-3.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs rounded-xl flex items-center gap-2">
+                <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs rounded-xl">
                   <span>🌸 {submitSuccess}</span>
                 </div>
               )}
@@ -691,7 +693,7 @@ export default function Home() {
                   <input
                     type="text"
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all text-xs"
+                    className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all text-base sm:text-sm"
                     placeholder="Enter patient full name"
                     value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
@@ -705,7 +707,7 @@ export default function Home() {
                   <input
                     type="tel"
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all text-xs"
+                    className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all text-base sm:text-sm"
                     placeholder="+91 98765 43210"
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
@@ -720,30 +722,24 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={() => setProblem("PCOD/PMOS")}
-                      className={`py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`py-3 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[48px] ${
                         problem === "PCOD/PMOS"
-                          ? "bg-pink-50 border-pink-200 text-pink-600"
+                          ? "bg-pink-50 border-pink-200 text-pink-600 shadow-sm"
                           : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                       }`}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                      </svg>
                       PCOS/PCOD/PMOS
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setProblem("Conceive")}
-                      className={`py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`py-3 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[48px] ${
                         problem === "Conceive"
-                          ? "bg-pink-50 border-pink-200 text-pink-600"
+                          ? "bg-pink-50 border-pink-200 text-pink-600 shadow-sm"
                           : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                       }`}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
                       Conceive
                     </button>
                   </div>
@@ -752,7 +748,7 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl text-xs shadow-md shadow-pink-100 hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full py-3.5 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl text-xs shadow-md shadow-pink-100 hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[48px]"
                 >
                   {submitting ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -763,46 +759,45 @@ export default function Home() {
               </form>
             </div>
 
-            {/* Recent Referrals List (60% width on Desktop) */}
+            {/* Recent Referrals List */}
             <div className="md:col-span-7 space-y-4">
-              <h3 className="font-bold text-slate-800 text-lg">Recent Clinical Referrals</h3>
+              <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Recent Referrals Sent</h3>
 
               {loading && referrals.length === 0 ? (
-                <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                  <div className="w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-slate-500 text-sm">Syncing referrals list...</p>
+                <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center shadow-sm">
+                  <div className="w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  <p className="text-slate-500 text-xs">Syncing referrals list...</p>
                 </div>
               ) : activeReferralsList.length === 0 ? (
-                <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm flex flex-col items-center">
-                  <svg className="w-12 h-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center shadow-sm flex flex-col items-center justify-center">
+                  <svg className="w-10 h-10 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <p className="text-slate-500 font-semibold text-sm">No referrals sent yet</p>
-                  <p className="text-slate-400 text-xs mt-1">Submit referred patient on the left panel to begin.</p>
+                  <p className="text-slate-500 font-bold text-xs">No active referrals found</p>
                 </div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-3.5">
                   {activeReferralsList.map((ref) => (
                     <div
                       key={ref.id}
-                      className="bg-white border border-slate-100 hover:border-slate-200 p-5 rounded-3xl shadow-sm flex items-center justify-between transition-all"
+                      className="bg-white border border-slate-100 p-4 sm:p-5 rounded-2xl shadow-sm flex items-center justify-between gap-3"
                     >
                       <div className="space-y-1">
-                        <p className="font-bold text-slate-800">{ref.patientName}</p>
-                        <p className="text-xs text-slate-500 flex items-center gap-2">
-                          <span className="font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">
+                        <p className="font-bold text-slate-800 text-sm sm:text-base">{ref.patientName}</p>
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+                          <span className="font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-[10px]">
                             {ref.problem}
                           </span>
                           <span>•</span>
                           <span>{ref.mobile}</span>
-                        </p>
+                        </div>
                         <p className="text-[10px] text-slate-400">
-                          Referred on {new Date(ref.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                          {new Date(ref.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                         </p>
                       </div>
 
                       <span
-                        className={`text-[10px] font-extrabold uppercase px-3 py-1.5 rounded-full border tracking-wider ${
+                        className={`text-[9px] font-extrabold uppercase px-2.5 py-1 rounded-full border tracking-wide flex-shrink-0 ${
                           ref.referralStatus === "pending"
                             ? "bg-amber-50 border-amber-200 text-amber-600"
                             : ref.referralStatus === "contacted"
@@ -824,77 +819,76 @@ export default function Home() {
 
         {/* --- PATIENTS TAB CONTENT --- */}
         {activeTab === "patients" && (
-          <section className="space-y-6">
+          <section className="space-y-4">
             
             {/* Search and Hero Area */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-500 rounded-3xl p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-500 rounded-2xl p-5 sm:p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="font-bold text-xl">Clinical Patient Roster</h3>
-                <p className="text-xs text-purple-100 mt-1">Review user cycle updates, health questionnaires, and write notes</p>
+                <h3 className="font-bold text-lg sm:text-xl">Converted Patients</h3>
+                <p className="text-xs text-purple-100 mt-0.5">Review wellness logs, parameters and update notes</p>
               </div>
 
-              {/* Search Bar */}
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center px-4 py-2 w-full md:max-w-sm">
+              {/* Search Input (text-base on mobile prevents safari auto zoom) */}
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl flex items-center px-3 py-2.5 w-full md:max-w-xs">
                 <SearchIcon />
                 <input
                   type="text"
-                  placeholder="Search by name, code, phone..."
-                  className="bg-transparent border-none outline-none text-white placeholder-purple-200 text-sm ml-2 w-full focus:ring-0"
+                  placeholder="Search by name, code..."
+                  className="bg-transparent border-none outline-none text-white placeholder-purple-200 text-base sm:text-xs ml-2 w-full focus:ring-0"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="text-white/60 hover:text-white cursor-pointer">
+                  <button onClick={() => setSearchQuery("")} className="text-white/60 hover:text-white cursor-pointer px-1">
                     <CloseIcon />
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Converted Patients Grid */}
+            {/* Patients Grid */}
             {loading && activePatientsList.length === 0 ? (
-              <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">Syncing converted patients...</p>
+              <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center shadow-sm">
+                <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-slate-500 text-xs">Syncing active patients...</p>
               </div>
             ) : activePatientsList.length === 0 ? (
-              <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm flex flex-col items-center">
-                <svg className="w-12 h-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center shadow-sm flex flex-col items-center justify-center">
+                <svg className="w-10 h-10 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
-                <p className="text-slate-500 font-semibold text-sm">No converted patients yet</p>
-                <p className="text-slate-400 text-xs mt-1">Referred users will appear here once they complete app registration.</p>
+                <p className="text-slate-500 font-bold text-xs">No converted patients found</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {activePatientsList.map((pat) => (
                   <div
                     key={pat.id}
-                    className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:border-purple-200 transition-all group"
+                    className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:border-purple-200 transition-all gap-4"
                   >
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div className="flex justify-between items-start">
-                        <p className="font-bold text-slate-800 group-hover:text-purple-600 transition-colors text-lg">
+                        <p className="font-bold text-slate-800 text-base">
                           {pat.patientName}
                         </p>
-                        <span className="text-[10px] font-bold bg-purple-50 text-purple-600 px-2 py-0.5 rounded">
-                          Converted
+                        <span className="text-[9px] font-bold bg-purple-50 text-purple-600 px-2 py-0.5 rounded">
+                          Registered
                         </span>
                       </div>
                       
                       <div className="space-y-1 text-xs text-slate-500">
-                        <p>Code: <span className="font-mono font-bold text-slate-700">{pat.doctorReferralCode}</span></p>
+                        <p>Ref Code: <span className="font-mono font-bold text-slate-700">{pat.doctorReferralCode}</span></p>
                         <p>Mobile: <span className="text-slate-700">{pat.mobile}</span></p>
-                        {pat.email && <p>Email: <span className="text-slate-700">{pat.email}</span></p>}
+                        {pat.email && <p>Email: <span className="text-slate-700 break-all">{pat.email}</span></p>}
                       </div>
                     </div>
 
                     <button
                       onClick={() => handleOpenDossier(pat.id)}
-                      className="mt-6 w-full py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-600 hover:text-purple-700 font-bold rounded-xl text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      className="w-full py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-600 hover:text-purple-700 font-bold rounded-xl text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[40px]"
                     >
                       <span>View Health Dossier</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -906,28 +900,29 @@ export default function Home() {
         )}
       </div>
 
-      {/* --- PATIENT HEALTH DOSSIER SIDE-PANEL / MODAL --- */}
+      {/* --- PATIENT HEALTH DOSSIER DRAWER MODAL --- */}
       {selectedPatientId && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex justify-end transition-opacity duration-300">
-          <div className="bg-white w-full max-w-3xl h-full flex flex-col shadow-2xl relative animate-slide-in">
+          {/* Side panel scales to cover 100% of viewport on mobile (max-w-3xl on tablets/desktop) */}
+          <div className="bg-white w-full md:max-w-3xl h-full flex flex-col shadow-2xl relative animate-slide-in">
             
-            {/* Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-4">
+            {/* Dossier Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelectedPatientId(null)}
-                  className="p-2 hover:bg-slate-100 rounded-full text-slate-700 transition-all cursor-pointer"
+                  className="p-2 hover:bg-slate-100 rounded-full text-slate-700 transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
                 >
                   <ArrowLeftIcon />
                 </button>
                 <div>
-                  <h2 className="font-black text-slate-800 text-xl">
+                  <h2 className="font-extrabold text-slate-800 text-base sm:text-lg max-w-[200px] sm:max-w-xs truncate">
                     {dossierLoading
-                      ? "Loading Patient File..."
+                      ? "Loading Dossier..."
                       : dossierData?.patient?.patientName || "Clinical Dossier"}
                   </h2>
                   {!dossierLoading && (
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 truncate max-w-[200px] sm:max-w-xs">
                       {dossierData?.patient?.email ? `${dossierData.patient.email} • ` : ""}
                       {dossierData?.patient?.mobile || ""}
                     </p>
@@ -936,58 +931,52 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setSelectedPatientId(null)}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
               >
                 <CloseIcon />
               </button>
             </div>
 
-            {/* Dossier Loading Spinner */}
+            {/* Content Switcher */}
             {dossierLoading ? (
               <div className="flex-1 flex flex-col items-center justify-center">
-                <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-3" />
-                <p className="text-slate-500 text-sm font-semibold">Retrieving Clinical Dossier File...</p>
+                <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-slate-500 text-xs font-semibold">Retrieving Clinical Dossier File...</p>
               </div>
             ) : (
               <>
-                {/* Dossier Tabs */}
-                <div className="flex border-b border-slate-100 bg-slate-50/30 px-6">
+                {/* Dossier segment tabs */}
+                <div className="flex border-b border-slate-100 bg-slate-50/30 px-4 sm:px-6">
                   <button
                     onClick={() => setDossierTab("overview")}
-                    className={`py-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
+                    className={`py-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 flex-1 justify-center sm:flex-none ${
                       dossierTab === "overview"
                         ? "border-purple-600 text-purple-700"
                         : "border-transparent text-slate-500 hover:text-slate-800"
                     }`}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
                     Clinical Profile
                   </button>
                   <button
                     onClick={() => setDossierTab("timeline")}
-                    className={`py-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
+                    className={`py-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 flex-1 justify-center sm:flex-none ${
                       dossierTab === "timeline"
                         ? "border-purple-600 text-purple-700"
                         : "border-transparent text-slate-500 hover:text-slate-800"
                     }`}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
                     Date-wise History
                   </button>
                 </div>
 
-                {/* Dossier Content Scroll */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Patient Roster Details view area */}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
                   {dossierTab === "overview" ? (
                     <>
-                      {/* Clinical Profile Grid */}
-                      <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 space-y-4">
-                        <h4 className="font-bold text-slate-800 text-sm">Biometrics & Parameters</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {/* Clinical Biometrics */}
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 sm:p-5 space-y-3.5">
+                        <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Biometrics & Parameters</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div className="bg-white p-3 rounded-xl border border-slate-100">
                             <span className="text-[10px] font-bold text-slate-400 block uppercase">Age</span>
                             <span className="text-sm font-bold text-slate-800">
@@ -1026,15 +1015,15 @@ export default function Home() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-3">
                           <div className="bg-white p-3 rounded-xl border border-slate-100">
-                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Cycle Regularity</span>
+                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Cycle Length</span>
                             <span className="text-sm font-bold text-slate-800">
-                              {dossierData?.patient?.cycleRegularity || "Regular"}
+                              {dossierData?.profile?.cycleLength ? `${dossierData.profile.cycleLength} days` : "Regular"}
                             </span>
                           </div>
                           <div className="bg-white p-3 rounded-xl border border-slate-100">
-                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Location Country</span>
+                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Country</span>
                             <span className="text-sm font-bold text-slate-800">
                               {dossierData?.patient?.country || "India"}
                             </span>
@@ -1043,23 +1032,23 @@ export default function Home() {
                       </div>
 
                       {/* Care Program Card */}
-                      <div className="border border-slate-100 rounded-2xl p-5 space-y-4">
-                        <h4 className="font-bold text-slate-800 text-sm">Care Plan & Goals</h4>
+                      <div className="border border-slate-100 rounded-xl p-4 sm:p-5 space-y-4">
+                        <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Care Plan & Goals</h4>
                         
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Active Subscription</span>
-                            <span className={`inline-block text-[10px] font-black uppercase px-2 py-0.5 rounded-full mt-1 ${
+                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Active Plan</span>
+                            <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-1 ${
                               dossierData?.profile?.activePlan
                                 ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
                                 : "bg-slate-100 text-slate-500"
                             }`}>
-                              {dossierData?.profile?.activePlan || "NO ACTIVE PLAN"}
+                              {dossierData?.profile?.activePlan || "NO PLAN REGISTERED"}
                             </span>
                           </div>
 
                           <div>
-                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Daily Hydration Goal</span>
+                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Hydration Target</span>
                             <span className="text-xs font-bold text-slate-700 mt-1 block">
                               🥛 {dossierData?.profile?.targetWater ? `${dossierData.profile.targetWater} glasses` : "8 glasses"}
                             </span>
@@ -1067,31 +1056,31 @@ export default function Home() {
                         </div>
 
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 block uppercase mb-1">Highlighted Symptoms</span>
+                          <span className="text-[10px] font-bold text-slate-400 block uppercase mb-1.5">Symptoms Tracked</span>
                           {dossierData?.profile?.symptoms && dossierData.profile.symptoms.length > 0 ? (
-                            <div className="flex flex-wrap gap-2 mt-1">
+                            <div className="flex flex-wrap gap-1.5">
                               {dossierData.profile.symptoms.map((symptom: string, sIdx: number) => (
-                                <span key={sIdx} className="bg-pink-50 text-pink-600 border border-pink-100 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                <span key={sIdx} className="bg-pink-50 text-pink-600 border border-pink-100 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
                                   {symptom}
                                 </span>
                               ))}
                             </div>
                           ) : (
-                            <p className="text-xs text-slate-400 italic">No symptoms tracked by user</p>
+                            <p className="text-xs text-slate-400 italic">No baseline symptoms selected</p>
                           )}
                         </div>
 
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 block uppercase">Onboarding Clinical Goal</span>
+                          <span className="text-[10px] font-bold text-slate-400 block uppercase">Onboarding Goal Description</span>
                           <p className="text-xs text-slate-600 leading-relaxed mt-1">
                             🎯 {dossierData?.profile?.wellnessGoal || dossierData?.patient?.problem || "PCOD Management"}
                           </p>
                         </div>
                       </div>
 
-                      {/* Logged Periods */}
-                      <div className="border border-slate-100 rounded-2xl p-5 space-y-4">
-                        <h4 className="font-bold text-slate-800 text-sm">Logged Cycle History</h4>
+                      {/* Logged Periods (bleeding timeline) */}
+                      <div className="border border-slate-100 rounded-xl p-4 sm:p-5 space-y-3.5">
+                        <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Logged Cycle History</h4>
                         {dossierData?.periodHistory && dossierData.periodHistory.length > 0 ? (
                           <div className="space-y-3">
                             {dossierData.periodHistory.map((cycle: any, idx: number) => {
@@ -1100,21 +1089,21 @@ export default function Home() {
                                 ? Math.round((new Date(cycle.endDate).getTime() - new Date(cycle.startDate).getTime()) / (1000 * 60 * 60 * 24))
                                 : null;
                               return (
-                                <div key={idx} className="flex gap-3 bg-slate-50/50 p-3.5 rounded-xl border border-slate-100">
-                                  <div className="w-8 h-8 rounded-full bg-pink-50 flex items-center justify-center text-pink-500">
+                                <div key={idx} className="flex gap-3 bg-slate-50/50 p-3 rounded-xl border border-slate-100 text-xs">
+                                  <div className="w-8 h-8 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0">
                                     🩸
                                   </div>
-                                  <div className="text-xs space-y-1">
-                                    <p className="font-semibold text-slate-800">
+                                  <div className="space-y-1">
+                                    <p className="font-bold text-slate-800">
                                       Start: {new Date(cycle.startDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}
                                     </p>
                                     <p className="text-slate-500">
-                                      End: {hasEnded ? new Date(cycle.endDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) : <span className="text-pink-600 font-bold">Ongoing Bleeding Phase</span>}
+                                      End: {hasEnded ? new Date(cycle.endDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) : <span className="text-pink-600 font-bold">Ongoing 🩸</span>}
                                     </p>
-                                    <span className={`inline-block text-[9px] font-extrabold uppercase px-2 py-0.5 rounded mt-1 ${
-                                      hasEnded ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-pink-50 text-pink-600 border border-pink-100 animate-pulse"
+                                    <span className={`inline-block text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded mt-0.5 ${
+                                      hasEnded ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-pink-50 text-pink-600 border border-pink-100"
                                     }`}>
-                                      {hasEnded ? `${bleedingDays || 1} Days bleeding period` : "Active phase"}
+                                      {hasEnded ? `${bleedingDays || 1} Days period` : "Active bleeding"}
                                     </span>
                                   </div>
                                 </div>
@@ -1122,40 +1111,40 @@ export default function Home() {
                             })}
                           </div>
                         ) : (
-                          <p className="text-xs text-slate-400 italic">No cycle logs tracked yet by patient</p>
+                          <p className="text-xs text-slate-400 italic">No cycle history logged yet</p>
                         )}
                       </div>
 
-                      {/* Daily Wellness Logs */}
-                      <div className="border border-slate-100 rounded-2xl p-5 space-y-4">
-                        <h4 className="font-bold text-slate-800 text-sm">Wellness Telemetry (Last 10 Logs)</h4>
+                      {/* Wellness logs telemetry */}
+                      <div className="border border-slate-100 rounded-xl p-4 sm:p-5 space-y-3.5">
+                        <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Wellness History logs</h4>
                         {dossierData?.wellnessHistory && dossierData.wellnessHistory.length > 0 ? (
-                          <div className="space-y-3">
+                          <div className="space-y-2.5">
                             {dossierData.wellnessHistory.slice(0, 10).map((log: any, idx: number) => (
-                              <div key={idx} className="flex items-center justify-between bg-slate-50/30 p-3 rounded-xl border border-slate-100 text-xs">
-                                <div className="space-y-1">
+                              <div key={idx} className="flex items-center justify-between bg-slate-50/30 p-3 rounded-xl border border-slate-100 text-xs gap-2">
+                                <div className="space-y-0.5">
                                   <p className="font-bold text-slate-700">
                                     {new Date(log.logDate || log.date).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}
                                   </p>
-                                  <div className="flex gap-4 text-slate-500 text-[10px]">
+                                  <div className="flex flex-wrap gap-2 text-slate-500 text-[10px]">
                                     <span>Mood: {log.mood || "N/A"}</span>
                                     <span>Sleep: {log.sleep || log.sleepHours || "0"} hrs</span>
                                     <span>Water: {log.waterIntake || log.waterIntakeMl || "0"} ml</span>
                                   </div>
                                 </div>
-                                <span className="text-[10px] font-bold text-slate-400">Day {log.cycleDay || "N/A"}</span>
+                                <span className="text-[10px] font-bold text-slate-400 flex-shrink-0">Day {log.cycleDay || "N/A"}</span>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <p className="text-xs text-slate-400 italic">No daily wellness telemetry logged by user</p>
+                          <p className="text-xs text-slate-400 italic">No logs tracked yet</p>
                         )}
                       </div>
 
-                      {/* Clinical Recommendations */}
-                      <div className="border border-slate-200 rounded-2xl p-5 space-y-4 bg-slate-50/50">
-                        <h4 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                          ✍️ Clinical Guidance & Notes
+                      {/* Clinical notes saving panel */}
+                      <div className="border border-slate-200 rounded-xl p-4 sm:p-5 space-y-3.5 bg-slate-50/50">
+                        <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">
+                          Clinical Guidance Recommendations
                         </h4>
 
                         {noteError && (
@@ -1170,10 +1159,11 @@ export default function Home() {
                           </div>
                         )}
 
+                        {/* text-base on mobile prevents iOS safari zoom behavior */}
                         <textarea
-                          rows={5}
-                          className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all resize-none"
-                          placeholder="Write custom instructions, recommendations, or clinical coaching notes..."
+                          rows={4}
+                          className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-base sm:text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all resize-none"
+                          placeholder="Recommend clinical plans, lifestyle changes, cycle notes..."
                           value={editingNoteText}
                           onChange={(e) => setEditingNoteText(e.target.value)}
                         />
@@ -1181,7 +1171,7 @@ export default function Home() {
                         <button
                           onClick={handleSaveNotes}
                           disabled={savingNote}
-                          className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md transition-all cursor-pointer flex items-center justify-center"
+                          className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md transition-all cursor-pointer flex items-center justify-center min-h-[48px]"
                         >
                           {savingNote ? (
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -1192,18 +1182,18 @@ export default function Home() {
                       </div>
                     </>
                   ) : (
-                    // TIMELINE DATE-WISE VIEW
-                    <div className="space-y-6">
+                    // TIMELINE VIEW
+                    <div className="space-y-5">
                       {Object.keys(timelineDataGrouped).length === 0 ? (
-                        <p className="text-xs text-slate-400 italic text-center p-8">No chronological history logs tracked</p>
+                        <p className="text-xs text-slate-400 italic text-center p-6">No chronological history logs tracked</p>
                       ) : (
                         Object.keys(timelineDataGrouped).map((monthYear, mIdx) => (
-                          <div key={mIdx} className="space-y-4">
-                            <h5 className="text-xs font-black text-purple-600 tracking-wider uppercase bg-purple-50 px-3 py-1 rounded inline-block">
+                          <div key={mIdx} className="space-y-3">
+                            <h5 className="text-[10px] font-black text-purple-600 tracking-wider uppercase bg-purple-50 px-2.5 py-1 rounded inline-block">
                               {monthYear}
                             </h5>
 
-                            <div className="border-l-2 border-slate-100 pl-4 ml-2 space-y-6">
+                            <div className="border-l border-slate-200 pl-3.5 ml-2 space-y-5">
                               {timelineDataGrouped[monthYear].map((event, eIdx) => {
                                 let badgeColor = "bg-purple-100 text-purple-600";
                                 if (event.type === "period_start") {
@@ -1215,12 +1205,12 @@ export default function Home() {
                                 }
 
                                 return (
-                                  <div key={eIdx} className="relative space-y-1">
+                                  <div key={eIdx} className="relative space-y-1 text-xs">
                                     {/* Event Bullet */}
-                                    <div className="absolute top-1 left-[-22px] w-3 h-3 rounded-full bg-white border-2 border-purple-500" />
+                                    <div className="absolute top-1 left-[-21px] w-2.5 h-2.5 rounded-full bg-white border-2 border-purple-500" />
                                     
                                     <div className="flex items-center gap-2">
-                                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${badgeColor}`}>
+                                      <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${badgeColor}`}>
                                         {event.type.replace("_", " ")}
                                       </span>
                                       <span className="text-[10px] text-slate-400">
