@@ -269,7 +269,7 @@ export default function Home() {
           body: JSON.stringify({
             patientName: patientName.trim(),
             mobile: mobile.trim(),
-            email: "",
+            email: `patient-${mobile.trim().replace(/[^a-zA-Z0-9]/g, "") || Date.now()}@wombcare.in`,
             problem: problem,
           }),
         }
@@ -479,6 +479,360 @@ export default function Home() {
         );
       });
   }, [referrals, searchQuery]);
+
+  // Render Dossier Drawer (Shared)
+  const renderDossierDrawer = () => {
+    if (!selectedPatientId) return null;
+    return (
+      <div className="fixed inset-0 z-50 bg-[#111]/50 backdrop-blur-sm flex justify-end transition-opacity duration-300">
+        {/* Side panel scales to cover 100% of viewport on mobile (max-w-3xl on tablets/desktop) */}
+        <div className="bg-[#F8F4FF] w-full md:max-w-3xl h-full flex flex-col shadow-2xl relative animate-slide-in">
+          
+          {/* Header section (matching modalHeader) */}
+          <div className="p-5 border-b border-[#EEE] bg-white flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedPatientId(null)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-700 transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+              >
+                <ArrowLeftIcon />
+              </button>
+              <div>
+                <h2 className="font-bold text-[#111] text-[24px] max-w-[200px] sm:max-w-xs truncate leading-none">
+                  {dossierLoading
+                    ? "Loading Dossier..."
+                    : dossierData?.patient?.patientName || "Clinical Dossier"}
+                </h2>
+                {!dossierLoading && (
+                  <p className="text-[13px] text-[#666] truncate max-w-[200px] sm:max-w-xs mt-1">
+                    {dossierData?.patient?.email ? `${dossierData.patient.email} • ` : ""}
+                    {dossierData?.patient?.mobile || ""}
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedPatientId(null)}
+              className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+
+          {/* Dossier tabs segment bar (matching dossierTabContainer) */}
+          {dossierLoading ? (
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="w-8 h-8 border-2 border-[#7C5CFF] border-t-transparent rounded-full animate-spin mb-3" />
+              <p className="text-slate-500 text-xs font-semibold">Retrieving Clinical Dossier File...</p>
+            </div>
+          ) : (
+            <>
+              <div className="p-[20px] pb-1 flex-shrink-0">
+                <div className="flex bg-[#F0E9FF] p-[4px] rounded-[16px] border border-transparent w-full">
+                  <button
+                    onClick={() => setDossierTab("overview")}
+                    className={`py-2 px-3 text-[13px] font-bold transition-all rounded-[12px] cursor-pointer flex items-center gap-1.5 flex-1 justify-center min-h-[38px] ${
+                      dossierTab === "overview" ? "bg-[#7C5CFF] text-white shadow-sm" : "text-[#7C5CFF]"
+                    }`}
+                  >
+                    Clinical Profile
+                  </button>
+                  <button
+                    onClick={() => setDossierTab("timeline")}
+                    className={`py-2 px-3 text-[13px] font-bold transition-all rounded-[12px] cursor-pointer flex items-center gap-1.5 flex-1 justify-center min-h-[38px] ${
+                      dossierTab === "timeline" ? "bg-[#7C5CFF] text-white shadow-sm" : "text-[#7C5CFF]"
+                    }`}
+                  >
+                    Date-wise History
+                  </button>
+                </div>
+              </div>
+
+              {/* Dossier details scroll view */}
+              <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-4">
+                {dossierTab === "overview" ? (
+                  <>
+                    {/* Clinical Biometrics Card (dossierCard) */}
+                    <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
+                      <h4 className="font-bold text-[#111] text-[18px]">Clinical Profile</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">Age</span>
+                          <span className="text-[16px] font-bold text-[#111] mt-1 block">
+                            {dossierData?.profile?.age ? `${dossierData.profile.age} years` : "Not specified"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">Weight</span>
+                          <span className="text-[16px] font-bold text-[#111] mt-1 block">
+                            {dossierData?.profile?.weight ? `${dossierData.profile.weight} kg` : "Not specified"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">Height</span>
+                          <span className="text-[16px] font-bold text-[#111] mt-1 block">
+                            {dossierData?.profile?.height ? `${dossierData.profile.height} cm` : "Not specified"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">BMI Ratio</span>
+                          <span className="text-[16px] font-bold text-[#111] mt-1 block">
+                            {(() => {
+                              const w = dossierData?.profile?.weight;
+                              const h = dossierData?.profile?.height;
+                              if (w && h) {
+                                const bmiVal = parseFloat((w / Math.pow(h / 100, 2)).toFixed(1));
+                                let cat = "Normal";
+                                if (bmiVal < 18.5) cat = "Underweight";
+                                else if (bmiVal >= 25 && bmiVal < 30) cat = "Overweight";
+                                else if (bmiVal >= 30) cat = "Obese";
+                                return `${bmiVal} (${cat})`;
+                              }
+                              return "N/A";
+                            })()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-50">
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">Cycle regularity</span>
+                          <span className="text-[16px] font-bold text-[#111] mt-1 block">
+                            {dossierData?.patient?.cycleRegularity || "Regular"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">Country</span>
+                          <span className="text-[16px] font-bold text-[#111] mt-1 block">
+                            {dossierData?.patient?.country || "India"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Care Program Card (dossierCard) */}
+                    <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
+                      <h4 className="font-bold text-[#111] text-[18px]">Care Plan & Goals</h4>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">Active Subscription</span>
+                          {dossierData?.profile?.activePlan ? (
+                            <div className={dossierData.profile.activePlan.toLowerCase().includes("premium") ? "bg-[#FFF3D6] rounded-[12px] px-3 py-1 mt-1.5 inline-block" : "bg-[#E0F2FE] rounded-[12px] px-3 py-1 mt-1.5 inline-block"}>
+                              <span className={dossierData.profile.activePlan.toLowerCase().includes("premium") ? "text-[#D89B00] text-xs font-bold uppercase" : "text-[#0284C7] text-xs font-bold uppercase"}>
+                                ✨ {dossierData.profile.activePlan}
+                              </span>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-400 italic mt-1">No plan selected</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <span className="text-[12px] font-bold text-[#999] block uppercase">Water Intake Target</span>
+                          <span className="text-xs font-bold text-[#111] mt-2 block">
+                            🥛 {dossierData?.profile?.targetWater ? `${dossierData.profile.targetWater} glasses` : "8 glasses"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[12px] font-bold text-[#999] block uppercase mb-1.5">User Highlighted Symptoms</span>
+                        {dossierData?.profile?.symptoms && dossierData.profile.symptoms.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {dossierData.profile.symptoms.map((symptom: string, sIdx: number) => (
+                              <span key={sIdx} className="bg-[#FFE5EF] text-[#FF4D8D] text-xs font-bold px-3 py-1 rounded-[12px]">
+                                {symptom}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-slate-400 italic">No active symptoms logged</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <span className="text-[12px] font-bold text-[#999] block uppercase">Baseline Health Problem Description</span>
+                        <p className="text-[15px] text-[#444] leading-[22px] mt-1.5">
+                          {dossierData?.profile?.personalNotes || dossierData?.patient?.problem || "No personal notes recorded."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Logged Periods (cycleHistoryItem) */}
+                    <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
+                      <h4 className="font-bold text-[#111] text-[18px]">Logged Cycles & Periods</h4>
+                      {dossierData?.periodHistory && dossierData.periodHistory.length > 0 ? (
+                        <div className="divide-y divide-[#F3EBFD]">
+                          {dossierData.periodHistory.map((cycle: any, idx: number) => {
+                            const hasEnded = !!cycle.endDate;
+                            const bleedingDays = hasEnded
+                              ? Math.round((new Date(cycle.endDate).getTime() - new Date(cycle.startDate).getTime()) / (1000 * 60 * 60 * 24))
+                              : null;
+                            return (
+                              <div key={idx} className="flex items-center py-2.5 gap-3">
+                                <div className="w-9 h-9 rounded-full bg-[#FFE5EF] flex items-center justify-center text-pink-500 flex-shrink-0">
+                                  🩸
+                                </div>
+                                <div className="text-xs flex-1 space-y-0.5">
+                                  <p className="text-[14px] font-medium text-[#111]">
+                                    Start: {new Date(cycle.startDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}
+                                  </p>
+                                  <p className={`text-[14px] font-medium ${hasEnded ? "text-[#555]" : "text-[#FF4D8D]"}`}>
+                                    End: {hasEnded ? new Date(cycle.endDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) : "Ongoing Bleeding"}
+                                  </p>
+                                  <div className={hasEnded ? "bg-[#DCFCE7] rounded-lg px-2 py-0.5 mt-1 inline-block" : "bg-[#FEE2E2] rounded-lg px-2 py-0.5 mt-1 inline-block"}>
+                                    <span className={hasEnded ? "text-[#16A34A] text-[11px] font-semibold" : "text-[#EF4444] text-[11px] font-semibold"}>
+                                      {hasEnded ? `${bleedingDays || 1} days bleeding period` : "Period currently active"}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-[#999] italic">No cycle logs tracked yet by user.</p>
+                      )}
+                    </div>
+
+                    {/* Wellness logs telemetry (wellnessHistoryItem) */}
+                    <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
+                      <h4 className="font-bold text-[#111] text-[18px]">Wellness Telemetry (Last 10 Days)</h4>
+                      {dossierData?.wellnessHistory && dossierData.wellnessHistory.length > 0 ? (
+                        <div className="divide-y divide-[#F3EBFD]">
+                          {dossierData.wellnessHistory.slice(0, 10).map((log: any, idx: number) => (
+                            <div key={idx} className="flex items-center py-2.5 gap-3">
+                              <div className="w-9 h-9 rounded-full bg-[#EEE9FF] flex items-center justify-center text-purple-500 flex-shrink-0">
+                                ⚡
+                              </div>
+                              <div className="flex-1 space-y-0.5">
+                                <p className="text-[14px] font-bold text-[#111]">
+                                  {new Date(log.logDate || log.date).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </p>
+                                <div className="flex gap-4 text-[#666] text-xs font-semibold">
+                                  <span>Mood: {log.mood || "N/A"}</span>
+                                  <span>Sleep: {log.sleep || log.sleepHours || "0"} hrs</span>
+                                  <span>Water: {log.waterIntake || log.waterIntakeMl || "0"} ml</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-[#999] italic">No daily wellness metrics logged yet.</p>
+                      )}
+                    </div>
+
+                    {/* Clinical Recommendations (dossierCard) */}
+                    <div className="bg-white rounded-[28px] p-5 shadow-sm border border-[#EFEAFA] space-y-4">
+                      <h4 className="font-bold text-[#111] text-[18px] flex items-center gap-1">
+                        Clinical Guidance & Note
+                      </h4>
+                      <span className="text-[12px] font-bold text-[#999] block uppercase">Doctor Recommendations</span>
+
+                      {noteError && (
+                        <div className="p-3 bg-pink-50 border border-pink-100 text-pink-700 text-xs rounded-xl">
+                          {noteError}
+                        </div>
+                      )}
+
+                      {noteSuccess && (
+                        <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs rounded-xl">
+                          {noteSuccess}
+                        </div>
+                      )}
+
+                      <textarea
+                        rows={4}
+                        className="w-full p-4 bg-[#FAFAFA] border border-[#EFEAFA] rounded-[18px] text-base sm:text-[14px] text-[#111] focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all resize-none"
+                        placeholder="Recommend diet plans, supplement schedules, exercise logs, or guidance..."
+                        value={editingNoteText}
+                        onChange={(e) => setEditingNoteText(e.target.value)}
+                      />
+
+                      <button
+                        onClick={handleSaveNotes}
+                        disabled={savingNote}
+                        className="w-full h-[50px] bg-[#FF4D8D] hover:bg-pink-600 text-white font-bold rounded-[18px] text-[14px] shadow-sm transition-all cursor-pointer flex items-center justify-center"
+                      >
+                        {savingNote ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          "Save Clinical Guidance 🌸"
+                        )}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  // TIMELINE
+                  <div className="space-y-6">
+                    {Object.keys(timelineDataGrouped).length === 0 ? (
+                      <div className="bg-white rounded-[28px] p-8 text-center border border-slate-100">
+                        <p className="text-xs text-[#999] italic">No timeline metrics or tracking logs available.</p>
+                      </div>
+                    ) : (
+                      Object.keys(timelineDataGrouped).map((monthYear, mIdx) => (
+                        <div key={mIdx} className="space-y-3">
+                          <h5 className="text-[13px] font-black text-[#7C5CFF] tracking-wider uppercase ml-1">
+                            {monthYear}
+                          </h5>
+
+                          <div className="border-l-2 border-[#E2D9F3] pl-[18px] ml-3.5 space-y-4">
+                            {timelineDataGrouped[monthYear].map((event, eIdx) => {
+                              let badgeColor = "#7C5CFF";
+                              if (event.type === "period_start") {
+                                badgeColor = "#FF4D8D";
+                              } else if (event.type === "period_end") {
+                                badgeColor = "#10B981";
+                              } else if (event.type === "profile_created") {
+                                badgeColor = "#3B82F6";
+                              }
+
+                              return (
+                                <div key={eIdx} className="relative timelineEventItem">
+                                  <div
+                                    style={{ borderColor: badgeColor, color: badgeColor }}
+                                    className="absolute top-1 left-[-29px] w-[22px] h-[22px] rounded-full bg-white border flex items-center justify-center text-[10px] font-bold"
+                                  >
+                                    •
+                                  </div>
+                                  
+                                  <div className="bg-white rounded-[14px] p-3 border border-[#F3EBFD] shadow-sm space-y-1">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-[11px] font-bold text-[#111] truncate">{event.title}</p>
+                                      <span className="text-[9px] text-[#888] font-bold flex-shrink-0">
+                                        {event.date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                                      </span>
+                                    </div>
+                                    <p className="text-[10px] text-[#555] leading-relaxed whitespace-pre-line">
+                                      {event.details}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {/* Close button at the bottom of the drawer */}
+                <button
+                  onClick={() => setSelectedPatientId(null)}
+                  className="w-full h-14 bg-[#111] hover:bg-[#222] text-white font-semibold rounded-[24px] text-base transition-all cursor-pointer flex items-center justify-center mt-6"
+                >
+                  Close Dossier
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // Render Mobile Login Page
   const renderMobileLogin = () => (
@@ -874,6 +1228,8 @@ export default function Home() {
             </div>
           )}
         </div>
+        {/* Render Health Dossier Side panel for Mobile Overlay */}
+        {selectedPatientId && renderDossierDrawer()}
       </main>
     );
   }
@@ -1082,355 +1438,7 @@ export default function Home() {
       </div>
 
       {/* --- PATIENT HEALTH DOSSIER SIDE-PANEL / DRAWERS (USED IN BOTH PC AND RESPONSIVE MOBILE OVERLAYS) --- */}
-      {selectedPatientId && (
-        <div className="fixed inset-0 z-50 bg-[#111]/50 backdrop-blur-sm flex justify-end transition-opacity duration-300">
-          {/* Side panel scales to cover 100% of viewport on mobile (max-w-3xl on tablets/desktop) */}
-          <div className="bg-[#F8F4FF] w-full md:max-w-3xl h-full flex flex-col shadow-2xl relative animate-slide-in">
-            
-            {/* Header section (matching modalHeader) */}
-            <div className="p-5 border-b border-[#EEE] bg-white flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSelectedPatientId(null)}
-                  className="p-2 hover:bg-slate-100 rounded-full text-slate-700 transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
-                >
-                  <ArrowLeftIcon />
-                </button>
-                <div>
-                  <h2 className="font-bold text-[#111] text-[24px] max-w-[200px] sm:max-w-xs truncate leading-none">
-                    {dossierLoading
-                      ? "Loading Dossier..."
-                      : dossierData?.patient?.patientName || "Clinical Dossier"}
-                  </h2>
-                  {!dossierLoading && (
-                    <p className="text-[13px] text-[#666] truncate max-w-[200px] sm:max-w-xs mt-1">
-                      {dossierData?.patient?.email ? `${dossierData.patient.email} • ` : ""}
-                      {dossierData?.patient?.mobile || ""}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedPatientId(null)}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-
-            {/* Dossier tabs segment bar (matching dossierTabContainer) */}
-            {dossierLoading ? (
-              <div className="flex-1 flex flex-col items-center justify-center">
-                <div className="w-8 h-8 border-2 border-[#7C5CFF] border-t-transparent rounded-full animate-spin mb-3" />
-                <p className="text-slate-500 text-xs font-semibold">Retrieving Clinical Dossier File...</p>
-              </div>
-            ) : (
-              <>
-                <div className="p-[20px] pb-1 flex-shrink-0">
-                  <div className="flex bg-[#F0E9FF] p-[4px] rounded-[16px] border border-transparent w-full">
-                    <button
-                      onClick={() => setDossierTab("overview")}
-                      className={`py-2 px-3 text-[13px] font-bold transition-all rounded-[12px] cursor-pointer flex items-center gap-1.5 flex-1 justify-center min-h-[38px] ${
-                        dossierTab === "overview" ? "bg-[#7C5CFF] text-white shadow-sm" : "text-[#7C5CFF]"
-                      }`}
-                    >
-                      Clinical Profile
-                    </button>
-                    <button
-                      onClick={() => setDossierTab("timeline")}
-                      className={`py-2 px-3 text-[13px] font-bold transition-all rounded-[12px] cursor-pointer flex items-center gap-1.5 flex-1 justify-center min-h-[38px] ${
-                        dossierTab === "timeline" ? "bg-[#7C5CFF] text-white shadow-sm" : "text-[#7C5CFF]"
-                      }`}
-                    >
-                      Date-wise History
-                    </button>
-                  </div>
-                </div>
-
-                {/* Dossier details scroll view */}
-                <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-4">
-                  {dossierTab === "overview" ? (
-                    <>
-                      {/* Clinical Biometrics Card (dossierCard) */}
-                      <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
-                        <h4 className="font-bold text-[#111] text-[18px]">Clinical Profile</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">Age</span>
-                            <span className="text-[16px] font-bold text-[#111] mt-1 block">
-                              {dossierData?.profile?.age ? `${dossierData.profile.age} years` : "Not specified"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">Weight</span>
-                            <span className="text-[16px] font-bold text-[#111] mt-1 block">
-                              {dossierData?.profile?.weight ? `${dossierData.profile.weight} kg` : "Not specified"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">Height</span>
-                            <span className="text-[16px] font-bold text-[#111] mt-1 block">
-                              {dossierData?.profile?.height ? `${dossierData.profile.height} cm` : "Not specified"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">BMI Ratio</span>
-                            <span className="text-[16px] font-bold text-[#111] mt-1 block">
-                              {(() => {
-                                const w = dossierData?.profile?.weight;
-                                const h = dossierData?.profile?.height;
-                                if (w && h) {
-                                  const bmiVal = parseFloat((w / Math.pow(h / 100, 2)).toFixed(1));
-                                  let cat = "Normal";
-                                  if (bmiVal < 18.5) cat = "Underweight";
-                                  else if (bmiVal >= 25 && bmiVal < 30) cat = "Overweight";
-                                  else if (bmiVal >= 30) cat = "Obese";
-                                  return `${bmiVal} (${cat})`;
-                                }
-                                return "N/A";
-                              })()}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-50">
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">Cycle regularity</span>
-                            <span className="text-[16px] font-bold text-[#111] mt-1 block">
-                              {dossierData?.patient?.cycleRegularity || "Regular"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">Country</span>
-                            <span className="text-[16px] font-bold text-[#111] mt-1 block">
-                              {dossierData?.patient?.country || "India"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Care Program Card (dossierCard) */}
-                      <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
-                        <h4 className="font-bold text-[#111] text-[18px]">Care Plan & Goals</h4>
-                        
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">Active Subscription</span>
-                            {dossierData?.profile?.activePlan ? (
-                              <div className={dossierData.profile.activePlan.toLowerCase().includes("premium") ? "bg-[#FFF3D6] rounded-[12px] px-3 py-1 mt-1.5 inline-block" : "bg-[#E0F2FE] rounded-[12px] px-3 py-1 mt-1.5 inline-block"}>
-                                <span className={dossierData.profile.activePlan.toLowerCase().includes("premium") ? "text-[#D89B00] text-xs font-bold uppercase" : "text-[#0284C7] text-xs font-bold uppercase"}>
-                                  ✨ {dossierData.profile.activePlan}
-                                </span>
-                              </div>
-                            ) : (
-                              <p className="text-xs text-slate-400 italic mt-1">No plan selected</p>
-                            )}
-                          </div>
-
-                          <div>
-                            <span className="text-[12px] font-bold text-[#999] block uppercase">Water Intake Target</span>
-                            <span className="text-xs font-bold text-[#111] mt-2 block">
-                              🥛 {dossierData?.profile?.targetWater ? `${dossierData.profile.targetWater} glasses` : "8 glasses"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div>
-                          <span className="text-[12px] font-bold text-[#999] block uppercase mb-1.5">User Highlighted Symptoms</span>
-                          {dossierData?.profile?.symptoms && dossierData.profile.symptoms.length > 0 ? (
-                            <div className="flex flex-wrap gap-1.5">
-                              {dossierData.profile.symptoms.map((symptom: string, sIdx: number) => (
-                                <span key={sIdx} className="bg-[#FFE5EF] text-[#FF4D8D] text-xs font-bold px-3 py-1 rounded-[12px]">
-                                  {symptom}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-xs text-slate-400 italic">No active symptoms logged</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <span className="text-[12px] font-bold text-[#999] block uppercase">Baseline Health Problem Description</span>
-                          <p className="text-[15px] text-[#444] leading-[22px] mt-1.5">
-                            {dossierData?.profile?.personalNotes || dossierData?.patient?.problem || "No personal notes recorded."}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Logged Periods (cycleHistoryItem) */}
-                      <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
-                        <h4 className="font-bold text-[#111] text-[18px]">Logged Cycles & Periods</h4>
-                        {dossierData?.periodHistory && dossierData.periodHistory.length > 0 ? (
-                          <div className="divide-y divide-[#F3EBFD]">
-                            {dossierData.periodHistory.map((cycle: any, idx: number) => {
-                              const hasEnded = !!cycle.endDate;
-                              const bleedingDays = hasEnded
-                                ? Math.round((new Date(cycle.endDate).getTime() - new Date(cycle.startDate).getTime()) / (1000 * 60 * 60 * 24))
-                                : null;
-                              return (
-                                <div key={idx} className="flex items-center py-2.5 gap-3">
-                                  <div className="w-9 h-9 rounded-full bg-[#FFE5EF] flex items-center justify-center text-pink-500 flex-shrink-0">
-                                    🩸
-                                  </div>
-                                  <div className="text-xs flex-1 space-y-0.5">
-                                    <p className="text-[14px] font-medium text-[#111]">
-                                      Start: {new Date(cycle.startDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}
-                                    </p>
-                                    <p className={`text-[14px] font-medium ${hasEnded ? "text-[#555]" : "text-[#FF4D8D]"}`}>
-                                      End: {hasEnded ? new Date(cycle.endDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) : "Ongoing Bleeding"}
-                                    </p>
-                                    <div className={hasEnded ? "bg-[#DCFCE7] rounded-lg px-2 py-0.5 mt-1 inline-block" : "bg-[#FEE2E2] rounded-lg px-2 py-0.5 mt-1 inline-block"}>
-                                      <span className={hasEnded ? "text-[#16A34A] text-[11px] font-semibold" : "text-[#EF4444] text-[11px] font-semibold"}>
-                                        {hasEnded ? `${bleedingDays || 1} days bleeding period` : "Period currently active"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-[#999] italic">No cycle logs tracked yet by user.</p>
-                        )}
-                      </div>
-
-                      {/* Wellness logs telemetry (wellnessHistoryItem) */}
-                      <div className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 space-y-4">
-                        <h4 className="font-bold text-[#111] text-[18px]">Wellness Telemetry (Last 10 Days)</h4>
-                        {dossierData?.wellnessHistory && dossierData.wellnessHistory.length > 0 ? (
-                          <div className="divide-y divide-[#F3EBFD]">
-                            {dossierData.wellnessHistory.slice(0, 10).map((log: any, idx: number) => (
-                              <div key={idx} className="flex items-center py-2.5 gap-3">
-                                <div className="w-9 h-9 rounded-full bg-[#EEE9FF] flex items-center justify-center text-purple-500 flex-shrink-0">
-                                  ⚡
-                                </div>
-                                <div className="flex-1 space-y-0.5">
-                                  <p className="text-[14px] font-bold text-[#111]">
-                                    {new Date(log.logDate || log.date).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}
-                                  </p>
-                                  <div className="flex gap-4 text-[#666] text-xs font-semibold">
-                                    <span>Mood: {log.mood || "N/A"}</span>
-                                    <span>Sleep: {log.sleep || log.sleepHours || "0"} hrs</span>
-                                    <span>Water: {log.waterIntake || log.waterIntakeMl || "0"} ml</span>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-[#999] italic">No daily wellness metrics logged yet.</p>
-                        )}
-                      </div>
-
-                      {/* Clinical Recommendations (dossierCard) */}
-                      <div className="bg-white rounded-[28px] p-5 shadow-sm border border-[#EFEAFA] space-y-4">
-                        <h4 className="font-bold text-[#111] text-[18px] flex items-center gap-1">
-                          Clinical Guidance & Note
-                        </h4>
-                        <span className="text-[12px] font-bold text-[#999] block uppercase">Doctor Recommendations</span>
-
-                        {noteError && (
-                          <div className="p-3 bg-pink-50 border border-pink-100 text-pink-700 text-xs rounded-xl">
-                            {noteError}
-                          </div>
-                        )}
-
-                        {noteSuccess && (
-                          <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs rounded-xl">
-                            {noteSuccess}
-                          </div>
-                        )}
-
-                        <textarea
-                          rows={4}
-                          className="w-full p-4 bg-[#FAFAFA] border border-[#EFEAFA] rounded-[18px] text-base sm:text-[14px] text-[#111] focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all resize-none"
-                          placeholder="Recommend diet plans, supplement schedules, exercise logs, or guidance..."
-                          value={editingNoteText}
-                          onChange={(e) => setEditingNoteText(e.target.value)}
-                        />
-
-                        <button
-                          onClick={handleSaveNotes}
-                          disabled={savingNote}
-                          className="w-full h-[50px] bg-[#FF4D8D] hover:bg-pink-600 text-white font-bold rounded-[18px] text-[14px] shadow-sm transition-all cursor-pointer flex items-center justify-center"
-                        >
-                          {savingNote ? (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            "Save Clinical Guidance 🌸"
-                          )}
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    // TIMELINE
-                    <div className="space-y-6">
-                      {Object.keys(timelineDataGrouped).length === 0 ? (
-                        <div className="bg-white rounded-[28px] p-8 text-center border border-slate-100">
-                          <p className="text-xs text-[#999] italic">No timeline metrics or tracking logs available.</p>
-                        </div>
-                      ) : (
-                        Object.keys(timelineDataGrouped).map((monthYear, mIdx) => (
-                          <div key={mIdx} className="space-y-3">
-                            <h5 className="text-[13px] font-black text-[#7C5CFF] tracking-wider uppercase ml-1">
-                              {monthYear}
-                            </h5>
-
-                            <div className="border-l-2 border-[#E2D9F3] pl-[18px] ml-3.5 space-y-4">
-                              {timelineDataGrouped[monthYear].map((event, eIdx) => {
-                                let badgeColor = "#7C5CFF";
-                                if (event.type === "period_start") {
-                                  badgeColor = "#FF4D8D";
-                                } else if (event.type === "period_end") {
-                                  badgeColor = "#10B981";
-                                } else if (event.type === "profile_created") {
-                                  badgeColor = "#3B82F6";
-                                }
-
-                                return (
-                                  <div key={eIdx} className="relative timelineEventItem">
-                                    <div
-                                      style={{ borderColor: badgeColor, color: badgeColor }}
-                                      className="absolute top-1 left-[-29px] w-[22px] h-[22px] rounded-full bg-white border flex items-center justify-center text-[10px] font-bold"
-                                    >
-                                      •
-                                    </div>
-                                    
-                                    <div className="bg-white rounded-[14px] p-3 border border-[#F3EBFD] shadow-sm space-y-1">
-                                      <div className="flex items-center justify-between gap-2">
-                                        <p className="text-[11px] font-bold text-[#111] truncate">{event.title}</p>
-                                        <span className="text-[9px] text-[#888] font-bold flex-shrink-0">
-                                          {event.date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                                        </span>
-                                      </div>
-                                      <p className="text-[10px] text-[#555] leading-relaxed whitespace-pre-line">
-                                        {event.details}
-                                      </p>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-
-                  {/* Close button at the bottom of the drawer */}
-                  <button
-                    onClick={() => setSelectedPatientId(null)}
-                    className="w-full h-14 bg-[#111] hover:bg-[#222] text-white font-semibold rounded-[24px] text-base transition-all cursor-pointer flex items-center justify-center mt-6"
-                  >
-                    Close Dossier
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      {selectedPatientId && renderDossierDrawer()}
     </main>
   );
 }
