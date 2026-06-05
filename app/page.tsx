@@ -134,14 +134,19 @@ export default function Home() {
 
   // Check session storage on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem("doctorToken");
-    const storedDoctor = localStorage.getItem("doctorInfo");
-    if (storedToken && storedDoctor) {
-      setDoctorToken(storedToken);
-      setDoctorInfo(JSON.parse(storedDoctor));
-      setIsLoggedIn(true);
+    try {
+      const storedToken = localStorage.getItem("doctorToken");
+      const storedDoctor = localStorage.getItem("doctorInfo");
+      if (storedToken && storedDoctor) {
+        setDoctorToken(storedToken);
+        setDoctorInfo(JSON.parse(storedDoctor));
+        setIsLoggedIn(true);
+      }
+    } catch (err) {
+      console.error("Failed to retrieve session from localStorage:", err);
+    } finally {
+      setCheckingSession(false);
     }
-    setCheckingSession(false);
   }, []);
 
   // Fetch referrals and patient lists
@@ -952,6 +957,18 @@ export default function Home() {
       </div>
     </main>
   );
+
+  // Render loading state while checking session to prevent hydration flash/mismatch
+  if (checkingSession) {
+    return (
+      <main className="min-h-screen bg-[#F8F4FF] flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-[#7C5CFF] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-[#7C5CFF] font-semibold tracking-wider uppercase">Loading Session...</p>
+        </div>
+      </main>
+    );
+  }
 
   // ==========================================
   // 1. MOBILE DEVICE WORKFLOW (width < 768px)
