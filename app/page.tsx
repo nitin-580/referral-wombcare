@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 
 // Interface definitions matching app-wombcare database model structure
 interface Referral {
@@ -842,6 +843,16 @@ export default function Home() {
 
       <div className="w-full bg-white/90 backdrop-blur-md rounded-[30px] border border-white shadow-xl p-6 relative z-10">
         <div className="text-center mb-6">
+          <div className="flex justify-center mb-3">
+            <Image
+              src="/icons/icon.png"
+              alt="WombCare Logo"
+              width={80}
+              height={80}
+              className="object-contain"
+              priority
+            />
+          </div>
           <h1 className="text-[40px] font-black text-[#FF4D8D] leading-none tracking-tight">
             WombCare
           </h1>
@@ -1246,6 +1257,16 @@ export default function Home() {
 
         <div className="w-full max-w-md bg-white/90 backdrop-blur-md rounded-[30px] border border-white shadow-xl p-8 relative z-10 transition-all duration-300">
           <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <Image
+                src="/icons/icon.png"
+                alt="WombCare Logo"
+                width={96}
+                height={96}
+                className="object-contain"
+                priority
+              />
+            </div>
             <h1 className="text-[42px] font-black text-[#FF4D8D] tracking-tight leading-none">
               WombCare
             </h1>
@@ -1370,71 +1391,243 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Database Search & Roster */}
-        <section className="space-y-4 flex-1">
-          <div className="bg-white rounded-[18px] border border-[#E2D9F3] flex items-center px-4 h-[52px] shadow-sm w-full gap-2.5">
-            <SearchIcon />
-            <input
-              type="text"
-              placeholder="Search converted patients by name, email, referral code..."
-              className="bg-transparent border-none outline-none text-[#111] placeholder-[#A0A0A0] text-sm ml-2 w-full focus:ring-0"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="text-[#999] hover:text-[#555] cursor-pointer p-1">
-                <CloseIcon />
-              </button>
-            )}
-          </div>
+        {/* Main Dashboard Layout Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start flex-1">
+          {/* LEFT COLUMN: Database Search & Roster (2/3 width on desktop) */}
+          <section className="lg:col-span-2 space-y-4">
+            <div className="bg-white rounded-[18px] border border-[#E2D9F3] flex items-center px-4 h-[52px] shadow-sm w-full gap-2.5">
+              <SearchIcon />
+              <input
+                type="text"
+                placeholder="Search converted patients by name, email, referral code..."
+                className="bg-transparent border-none outline-none text-[#111] placeholder-[#A0A0A0] text-sm ml-2 w-full focus:ring-0"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} className="text-[#999] hover:text-[#555] cursor-pointer p-1">
+                  <CloseIcon />
+                </button>
+              )}
+            </div>
 
-          {loading && activePatientsList.length === 0 ? (
-            <div className="bg-white rounded-[28px] p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center justify-center">
-              <div className="w-8 h-8 border-4 border-[#7C5CFF] border-t-transparent rounded-full animate-spin mb-3" />
-              <p className="text-slate-500 text-sm">Loading active patient database...</p>
-            </div>
-          ) : activePatientsList.length === 0 ? (
-            <div className="bg-white rounded-[28px] p-12 text-center shadow-sm border border-slate-100 flex flex-col items-center justify-center">
-              <svg className="w-12 h-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <p className="text-[#999] font-medium text-base">No converted referred patients found</p>
-              <p className="text-slate-400 text-xs mt-1">Your referred patients will appear here once they register on the WombCare app.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {activePatientsList.map((pat) => (
-                <div
-                  key={pat.id}
-                  className="bg-white rounded-[30px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:border-[#7C5CFF] transition-all gap-5"
-                >
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-start">
-                      <p className="font-bold text-[#111] text-[20px]">{pat.patientName}</p>
-                      <span className="text-[9px] font-bold bg-[#DCFCE7] text-[#16A34A] px-2.5 py-1 rounded-full uppercase">Active</span>
+            {loading && activePatientsList.length === 0 ? (
+              <div className="bg-white rounded-[28px] p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center justify-center">
+                <div className="w-8 h-8 border-4 border-[#7C5CFF] border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-slate-500 text-sm">Loading active patient database...</p>
+              </div>
+            ) : activePatientsList.length === 0 ? (
+              <div className="bg-white rounded-[28px] p-12 text-center shadow-sm border border-slate-100 flex flex-col items-center justify-center">
+                <svg className="w-12 h-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <p className="text-[#999] font-medium text-base">No converted referred patients found</p>
+                <p className="text-slate-400 text-xs mt-1">Your referred patients will appear here once they register on the WombCare app.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {activePatientsList.map((pat) => (
+                  <div
+                    key={pat.id}
+                    className="bg-white rounded-[30px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:border-[#7C5CFF] transition-all gap-5"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <p className="font-bold text-[#111] text-[20px]">{pat.patientName}</p>
+                        <span className="text-[9px] font-bold bg-[#DCFCE7] text-[#16A34A] px-2.5 py-1 rounded-full uppercase">Active</span>
+                      </div>
+                      
+                      <div className="space-y-1 text-sm">
+                        <p className="text-[#7C5CFF] font-medium text-sm">Referral Code: <span className="font-bold font-mono text-slate-700">{pat.doctorReferralCode}</span></p>
+                        {pat.email && <p className="text-[#999] text-xs font-semibold">{pat.email}</p>}
+                        <p className="text-[#999] text-xs font-semibold">Mobile: {pat.mobile}</p>
+                      </div>
                     </div>
-                    
-                    <div className="space-y-1 text-sm">
-                      <p className="text-[#7C5CFF] font-medium text-sm">Referral Code: <span className="font-bold font-mono text-slate-700">{pat.doctorReferralCode}</span></p>
-                      {pat.email && <p className="text-[#999] text-xs font-semibold">{pat.email}</p>}
-                      <p className="text-[#999] text-xs font-semibold">Mobile: {pat.mobile}</p>
+
+                    <button
+                      onClick={() => handleOpenDossier(pat.id)}
+                      className="w-full py-2.5 bg-[#DCFCE7] hover:bg-emerald-100 text-[#16A34A] font-bold rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
+                    >
+                      <span>View Clinical Dossier</span>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* RIGHT COLUMN: Quick Referral Form & Recent Referrals (1/3 width on desktop) */}
+          <section className="space-y-6">
+            {/* Quick Referral Form Card or Success Card */}
+            {showSuccessScreen ? (
+              <div className="bg-white rounded-[30px] p-6 shadow-sm border border-[#E2D9F3] text-center space-y-5">
+                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-[#16A34A] text-3xl shadow-sm border border-emerald-100 animate-bounce">
+                  ✓
+                </div>
+                
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-[#111]">Referral Registered!</h3>
+                  <p className="text-xs text-[#666]">Successfully logged in WombCare administration</p>
+                </div>
+
+                <div className="bg-[#FAFAFA] border border-[#EEE] rounded-[20px] p-4 text-left space-y-2">
+                  <span className="text-[10px] font-black text-[#999] uppercase tracking-wide block">Patient Summary</span>
+                  <p className="text-sm font-bold text-[#111]">{successName}</p>
+                  <div className="flex justify-between text-xs text-slate-500 pt-1.5 border-t border-slate-100/50">
+                    <span>Goal: <span className="font-bold text-[#FF4D8D]">{successProblem}</span></span>
+                    <span>Mobile: <span className="font-semibold">{successMobile}</span></span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowSuccessScreen(false)}
+                  className="w-full h-12 bg-[#111] hover:bg-[#222] text-white font-bold rounded-[18px] text-xs shadow-md transition-all cursor-pointer flex items-center justify-center"
+                >
+                  Refer Another Patient 🌸
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-[30px] p-6 shadow-sm border border-[#E2D9F3] space-y-5">
+                <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-xl p-4 text-white flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-sm">Quick Referral</h3>
+                    <p className="text-[10px] text-pink-50 mt-0.5">Register a referred patient instantly</p>
+                  </div>
+                  <SparklesIcon />
+                </div>
+
+                {submitError && (
+                  <div className="p-3 bg-[#FFE5EF] border border-[#FFE4E1] text-[#FF4D8D] text-xs font-semibold rounded-xl">
+                    <span>⚠️ {submitError}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleReferSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[#555] text-xs font-bold mb-2">
+                      Patient Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 h-12 bg-[#FAFAFA] border border-[#EEE] rounded-[14px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#FF4D8D] focus:bg-white text-sm"
+                      placeholder="Enter patient full name"
+                      value={patientName}
+                      onChange={(e) => setPatientName(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#555] text-xs font-bold mb-2">
+                      Mobile Number
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      className="w-full px-4 h-12 bg-[#FAFAFA] border border-[#EEE] rounded-[14px] text-[#111] focus:outline-none focus:ring-2 focus:ring-[#FF4D8D] focus:bg-white text-sm"
+                      placeholder="+91 98765 43210"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#555] text-xs font-bold mb-2">
+                      Clinical Goal / Category
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setProblem("PCOD/PMOS")}
+                        className={`py-2 px-3 rounded-[12px] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[38px] ${
+                          problem === "PCOD/PMOS"
+                            ? "bg-[#FF4D8D] border-transparent text-white shadow-sm"
+                            : "bg-[#FFF0F5] border-[1.5px] border-[#FFE4E1] text-[#FF4D8D]"
+                          }`}
+                      >
+                        PCOS/PCOD/PMOS
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setProblem("Conceive")}
+                        className={`py-2 px-3 rounded-[12px] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[38px] ${
+                          problem === "Conceive"
+                            ? "bg-[#FF4D8D] border-transparent text-white shadow-sm"
+                            : "bg-[#FFF0F5] border-[1.5px] border-[#FFE4E1] text-[#FF4D8D]"
+                          }`}
+                      >
+                        Conceive
+                      </button>
                     </div>
                   </div>
 
                   <button
-                    onClick={() => handleOpenDossier(pat.id)}
-                    className="w-full py-2.5 bg-[#DCFCE7] hover:bg-emerald-100 text-[#16A34A] font-bold rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full h-12 bg-[#111] hover:bg-[#222] text-white font-bold rounded-[18px] text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    <span>View Clinical Dossier</span>
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    {submitting ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      "Submit Patient Referral"
+                    )}
                   </button>
+                </form>
+              </div>
+            )}
+
+            {/* Recent Referrals List */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-black text-[#111] px-1">Recent Referrals</h3>
+              {loading && referrals.length === 0 ? (
+                <div className="bg-white rounded-[30px] p-6 text-center shadow-sm border border-slate-100">
+                  <div className="w-6 h-6 border-2 border-[#FF4D8D] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                 </div>
-              ))}
+              ) : activeReferralsList.length === 0 ? (
+                <div className="bg-white rounded-[30px] p-6 text-center shadow-sm border border-slate-100/50">
+                  <p className="text-slate-500 font-bold text-xs">No active referrals found</p>
+                </div>
+              ) : (
+                <div className="grid gap-3.5">
+                  {activeReferralsList.map((ref) => (
+                    <div
+                      key={ref.id}
+                      className="bg-white rounded-[24px] p-4 shadow-sm flex items-center justify-between gap-3 border border-slate-100/30"
+                    >
+                      <div className="space-y-1">
+                        <p className="font-bold text-[#111] text-sm leading-tight">{ref.patientName}</p>
+                        <p className="text-[#555] text-[11px] font-normal">
+                          Condition: <span className="font-semibold text-[#FF4D8D]">{ref.problem}</span>
+                        </p>
+                        <p className="text-[#999] text-[9px]">
+                          {ref.mobile} • {new Date(ref.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`text-[9px] font-extrabold uppercase px-2 py-1 rounded-full border tracking-wide flex-shrink-0 ${
+                          ref.referralStatus === "pending"
+                            ? "bg-[#FFE5EF] border-transparent text-[#111]"
+                            : ref.referralStatus === "contacted"
+                            ? "bg-[#EEE9FF] border-transparent text-[#111]"
+                            : ref.referralStatus === "converted"
+                            ? "bg-[#DCFCE7] border-transparent text-[#16A34A]"
+                            : "bg-[#FEE2E2] border-transparent text-[#EF4444]"
+                        }`}
+                      >
+                        {ref.referralStatus}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </section>
+          </section>
+        </div>
       </div>
 
       {/* --- PATIENT HEALTH DOSSIER SIDE-PANEL / DRAWERS (USED IN BOTH PC AND RESPONSIVE MOBILE OVERLAYS) --- */}
