@@ -195,7 +195,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        "https://womb-care-backend-76858014616.us-central1.run.app/api/doctors/login",
+        "https://womb-care-backend-76858014616.europe-west1.run.app/api/doctors/login",
         {
           method: "POST",
           headers: {
